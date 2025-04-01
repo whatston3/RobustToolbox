@@ -65,7 +65,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             // Spawn our test object in the middle of the grid, ensure it has no damping.
             obj = server.EntMan.SpawnEntity("ReparentTestObject", new EntityCoordinates(grid, 0.5f, 0.5f));
             physSystem.SetCanCollide(obj, true);
-            physSystem.SetLinearDamping(gridEnt, entManager.GetComponent<PhysicsComponent>(obj), 0.0f);
+            physSystem.SetLinearDamping(obj, entManager.GetComponent<PhysicsComponent>(obj), 0.0f);
         });
 
         await server.WaitAssertion(() =>
@@ -124,7 +124,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             // Spawn our test object 1 m off of the middle of the grid in both directions, ensure it has no damping.
             obj = server.EntMan.SpawnEntity("ReparentTestObject", new EntityCoordinates(map, 1.5f, 1.5f));
             physSystem.SetCanCollide(obj, true);
-            physSystem.SetLinearDamping(gridEnt, entManager.GetComponent<PhysicsComponent>(obj), 0.0f);
+            physSystem.SetLinearDamping(obj, entManager.GetComponent<PhysicsComponent>(obj), 0.0f);
         });
 
         await server.WaitAssertion(() =>
