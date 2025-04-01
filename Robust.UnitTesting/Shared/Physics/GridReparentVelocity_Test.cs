@@ -20,7 +20,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
   - type: Physics
     bodyType: Dynamic
   - type: Fixtures
-    fixtures
+    fixtures:
       fix1:
         shape:
           !type:PhysShapeAabb
