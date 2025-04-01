@@ -71,8 +71,8 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo(grid));
             
             // Set the velocity of the grid and our object.
-            physSystem.SetLinearVelocity(grid, new Vector2(1.0f, 2.0f));
-            physSystem.SetLinearVelocity(obj, new Vector2(3.5f, 4.75f));
+            Assert.That(physSystem.SetLinearVelocity(obj, new Vector2(3.5f, 4.75f)), Is.True);
+            Assert.That(physSystem.SetLinearVelocity(grid, new Vector2(1.0f, 2.0f)), Is.True);
 
             // Wait a second to clear the grid
             physSystem.Update(1.0f);
@@ -125,8 +125,8 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo(map));
             
             // Set the velocity of the grid and our object.
-            physSystem.SetLinearVelocity(grid, new Vector2(-1.0f, -2.0f));
-            physSystem.SetLinearVelocity(obj, new Vector2(-2.0f, -3.0f));
+            Assert.That(physSystem.SetLinearVelocity(obj, new Vector2(-2.0f, -3.0f)), Is.True);
+            Assert.That(physSystem.SetLinearVelocity(grid, new Vector2(-1.0f, -2.0f)), Is.True);
 
             // Wait a second to move onto the middle of the grid
             physSystem.Update(1.0f);
