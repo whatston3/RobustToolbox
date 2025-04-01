@@ -57,7 +57,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             var gridEnt = mapManager.CreateGridEntity(mapId);
             physSystem.SetCanCollide(gridEnt, true);
             physSystem.SetBodyType(gridEnt, BodyType.Dynamic);
-            physSystem.SetLinearDamping(gridEnt, entManager.GetComponent<PhysicsComponent>(grid), 0.0f);
+            physSystem.SetLinearDamping(gridEnt, entManager.GetComponent<PhysicsComponent>(gridEnt), 0.0f);
 
             mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
             grid = gridEnt.Owner;
@@ -116,7 +116,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             var gridEnt = mapManager.CreateGridEntity(mapId);
             physSystem.SetCanCollide(gridEnt, true);
             physSystem.SetBodyType(gridEnt, BodyType.Dynamic);
-            physSystem.SetLinearDamping(gridEnt, entManager.GetComponent<PhysicsComponent>(grid), 0.0f);
+            physSystem.SetLinearDamping(gridEnt, entManager.GetComponent<PhysicsComponent>(gridEnt), 0.0f);
 
             mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
             grid = gridEnt.Owner;
