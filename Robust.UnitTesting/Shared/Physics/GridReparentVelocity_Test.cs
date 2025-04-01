@@ -53,7 +53,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         {
             map = server.System<SharedMapSystem>().CreateMap(out var mapId);
 
-            // Spawn a grid with one tile, ensure it's movable
+            // Spawn a grid with one tile, ensure it's movable and its velocity has no damping.
             var gridEnt = mapManager.CreateGridEntity(mapId);
             physSystem.SetCanCollide(gridEnt, true);
             physSystem.SetBodyType(gridEnt, BodyType.Dynamic);
@@ -62,7 +62,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
             grid = gridEnt.Owner;
 
-            // Spawn our test object in the middle of the grid.
+            // Spawn our test object in the middle of the grid, ensure it has no damping.
             obj = server.EntMan.SpawnEntity("ReparentTestObject", new EntityCoordinates(grid, 0.5f, 0.5f));
             physSystem.SetCanCollide(obj, true);
             physSystem.SetLinearDamping(gridEnt, entManager.GetComponent<PhysicsComponent>(obj), 0.0f);
