@@ -47,9 +47,9 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             map = server.System<SharedMapSystem>().CreateMap(out var mapId);
 
             // Spawn a grid with one tile.
-            var grid = mapManager.CreateGridEntity(mapId);
-            mapSystem.SetTile(grid, Vector2i.Zero, new Tile(1));
-            var fixtures = entManager.GetComponent<FixturesComponent>(grid);
+            var gridEnt = mapManager.CreateGridEntity(mapId);
+            mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
+            grid = gridEnt.Owner;
 
             // Spawn our test object in the middle of the grid.
             obj = server.EntMan.SpawnEntity("ReparentTestObject", new EntityCoordinates(grid, 0.5f, 0.5f));
@@ -59,7 +59,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         await server.WaitAssertion(() =>
         {
             // Our object should start on the grid.
-            Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo((grid)));
+            Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo(grid));
             
             // Set the velocity of the grid and our object.
             physSystem.SetLinearVelocity(grid, new Vector2(1.0f, 2.0f));
@@ -69,7 +69,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             physSystem.Update(1.0f);
 
             // The object should be parented to the map and maintain its map velocity, the grid should be unchanged.
-            Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo((map)));
+            Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo(map));
             Assert.That(entManager.GetComponent<PhysicsComponent>(obj).LinearVelocity, Is.EqualTo(new Vector2(4.5f, 6.75f)));
             Assert.That(entManager.GetComponent<PhysicsComponent>(grid).LinearVelocity, Is.EqualTo(new Vector2(1.0f, 2.0f)));
         });
@@ -101,9 +101,9 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             map = server.System<SharedMapSystem>().CreateMap(out var mapId);
 
             // Spawn a grid with one tile.
-            var grid = mapManager.CreateGridEntity(mapId);
-            mapSystem.SetTile(grid, Vector2i.Zero, new Tile(1));
-            var fixtures = entManager.GetComponent<FixturesComponent>(grid);
+            var gridEnt = mapManager.CreateGridEntity(mapId);
+            mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
+            grid = gridEnt.Owner;
 
             // Spawn our test object 1 m off of the middle of the grid in both directions.
             obj = server.EntMan.SpawnEntity("ReparentTestObject", new EntityCoordinates(map, 1.5f, 1.5f));
@@ -113,7 +113,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         await server.WaitAssertion(() =>
         {
             // Assert that we start off the grid.
-            Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo((map)));
+            Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo(map));
             
             // Set the velocity of the grid and our object.
             physSystem.SetLinearVelocity(grid, new Vector2(-1.0f, -2.0f));
@@ -123,7 +123,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             physSystem.Update(1.0f);
 
             // The object should be parented to the grid and maintain its map velocity (slowing down), the grid should be unchanged.
-            Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo((grid)));
+            Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo(grid));
             Assert.That(entManager.GetComponent<PhysicsComponent>(obj).LinearVelocity, Is.EqualTo(new Vector2(-1.0f, -1.0f)));
             Assert.That(entManager.GetComponent<PhysicsComponent>(grid).LinearVelocity, Is.EqualTo(new Vector2(-2.0f, -3.0f)));
         });
