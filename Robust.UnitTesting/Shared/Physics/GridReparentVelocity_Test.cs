@@ -19,6 +19,15 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
   components:
   - type: Physics
     bodyType: Dynamic
+  - type: Fixtures
+    fixtures
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: '-0.1,-0.1,0.1,0.1'
+        hard: false
+        mask:
+        - Impassable
 ";
 
     [Test]
@@ -125,7 +134,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             // The object should be parented to the grid and maintain its map velocity (slowing down), the grid should be unchanged.
             Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo(grid));
             Assert.That(entManager.GetComponent<PhysicsComponent>(obj).LinearVelocity, Is.EqualTo(new Vector2(-1.0f, -1.0f)));
-            Assert.That(entManager.GetComponent<PhysicsComponent>(grid).LinearVelocity, Is.EqualTo(new Vector2(-2.0f, -3.0f)));
+            Assert.That(entManager.GetComponent<PhysicsComponent>(grid).LinearVelocity, Is.EqualTo(new Vector2(-1.0f, -2.0f)));
         });
     }
 }
