@@ -69,9 +69,8 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             physSystem.Update(1.0f);
 
             // The object should be parented to the map and maintain its map velocity, the grid should be unchanged.
-            var objPhys = entManager.GetComponent<PhysicsComponent>(obj);
-            Assert.That(objPhys.ParentUid, Is.EqualTo((map)));
-            Assert.That(objPhys.LinearVelocity, Is.EqualTo(new Vector2(4.5f, 6.75f)));
+            Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo((map)));
+            Assert.That(entManager.GetComponent<PhysicsComponent>(obj).LinearVelocity, Is.EqualTo(new Vector2(4.5f, 6.75f)));
             Assert.That(entManager.GetComponent<PhysicsComponent>(grid).LinearVelocity, Is.EqualTo(new Vector2(1.0f, 2.0f)));
         });
     }
@@ -124,9 +123,8 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             physSystem.Update(1.0f);
 
             // The object should be parented to the grid and maintain its map velocity (slowing down), the grid should be unchanged.
-            var objPhys = entManager.GetComponent<PhysicsComponent>(obj);
-            Assert.That(objPhys.ParentUid, Is.EqualTo((grid)));
-            Assert.That(objPhys.LinearVelocity, Is.EqualTo(new Vector2(-1.0f, -1.0f)));
+            Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo((grid)));
+            Assert.That(entManager.GetComponent<PhysicsComponent>(obj).LinearVelocity, Is.EqualTo(new Vector2(-1.0f, -1.0f)));
             Assert.That(entManager.GetComponent<PhysicsComponent>(grid).LinearVelocity, Is.EqualTo(new Vector2(-2.0f, -3.0f)));
         });
     }
