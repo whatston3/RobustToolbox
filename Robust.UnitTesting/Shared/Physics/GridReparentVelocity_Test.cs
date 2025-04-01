@@ -26,8 +26,6 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
           !type:PhysShapeAabb
           bounds: '-0.1,-0.1,0.1,0.1'
         hard: false
-        mask:
-        - Impassable
 ";
 
     [Test]
