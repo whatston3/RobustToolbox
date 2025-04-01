@@ -53,8 +53,11 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         {
             map = server.System<SharedMapSystem>().CreateMap(out var mapId);
 
-            // Spawn a grid with one tile.
+            // Spawn a grid with one tile, ensure it's movable
             var gridEnt = mapManager.CreateGridEntity(mapId);
+            physSystem.SetCanCollide(gridEnt, true);
+            physSystem.SetBodyType(gridEnt, BodyType.Dynamic);
+
             mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
             grid = gridEnt.Owner;
 
@@ -107,8 +110,11 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         {
             map = server.System<SharedMapSystem>().CreateMap(out var mapId);
 
-            // Spawn a grid with one tile.
+            // Spawn a grid with one tile, ensure it's movable
             var gridEnt = mapManager.CreateGridEntity(mapId);
+            physSystem.SetCanCollide(gridEnt, true);
+            physSystem.SetBodyType(gridEnt, BodyType.Dynamic);
+
             mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
             grid = gridEnt.Owner;
 
