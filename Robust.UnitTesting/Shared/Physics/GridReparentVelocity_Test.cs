@@ -59,7 +59,16 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
     [SetUp]
     public void Setup()
     {
-        _gridUid = SetupTestGrid(_mapId);
+        // Spawn a 1x1 grid centered at (0.5, 0.5), ensure it's movable and its velocity has no damping.
+        var gridEnt = _mapManager.CreateGridEntity(_mapId);
+        _physSystem.SetCanCollide(gridEnt, true);
+        _physSystem.SetBodyType(gridEnt, BodyType.Dynamic);
+        var gridPhys = _entManager.GetComponent<PhysicsComponent>(gridEnt);
+        _physSystem.SetLinearDamping(gridEnt, gridPhys, 0.0f);
+        _physSystem.SetAngularDamping(gridEnt, gridPhys, 0.0f);
+
+        _mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
+        _gridUid = gridEnt.Owner;
     }
 
     [TearDown]
@@ -171,22 +180,6 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         var gridPhys = _entManager.GetComponent<PhysicsComponent>(_gridUid);
         Assert.That(gridPhys.LinearVelocity, Is.EqualTo(new Vector2(-1.0f, -2.0f)));
         Assert.That(gridPhys.AngularVelocity, Is.EqualTo(2.0f));
-    }
-
-    // Spawn a 1x1 grid centered at (0.5, 0.5), ensure it's movable and its velocity has no damping.
-    public EntityUid SetupTestGrid(MapId map)
-    {
-        var physSystem = _systems.GetEntitySystem<SharedPhysicsSystem>();
-
-        var gridEnt = _mapManager.CreateGridEntity(map);
-        physSystem.SetCanCollide(gridEnt, true);
-        physSystem.SetBodyType(gridEnt, BodyType.Dynamic);
-        var gridPhys = _entManager.GetComponent<PhysicsComponent>(gridEnt);
-        physSystem.SetLinearDamping(gridEnt, gridPhys, 0.0f);
-        physSystem.SetAngularDamping(gridEnt, gridPhys, 0.0f);
-
-        _mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
-        return gridEnt.Owner;
     }
 
     // Spawn a bullet-like test object at the given position, ensure its velocity has no damping.
