@@ -54,12 +54,39 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         var gridEnt = _mapManager.CreateGridEntity(_mapId);
         var gridPhys = _entManager.GetComponent<PhysicsComponent>(gridEnt);
         _physSystem.SetBodyType(gridEnt, BodyType.Dynamic, body: gridPhys);
-        _physSystem.SetCanCollide(gridEnt, true, body: gridPhys);
         _physSystem.SetLinearDamping(gridEnt, gridPhys, 0.0f);
         _physSystem.SetAngularDamping(gridEnt, gridPhys, 0.0f);
 
         _mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
         _gridUid = gridEnt.Owner;
+    }
+
+    // Spawn a bullet-like test object at the given position.
+    public EntityUid SetupTestObject(EntityCoordinates coords)
+    {
+        var obj = _entManager.SpawnEntity(null, coords);
+
+        _entManager.EnsureComponent<PhysicsComponent>(obj);
+        _entManager.EnsureComponent<FixturesComponent>(obj);
+
+        // Set up fixture.
+        var poly = new PolygonShape();
+        poly.Set(new List<Vector2>()
+        {
+            new(0.1f, -0.1f),
+            new(0.1f, 0.1f),
+            new(-0.1f, 0.1f),
+            new(-0.1f, -0.1f),
+        });
+        _fixtureSystem.CreateFixture(obj, "fix1", new Fixture(poly, 0, 0, false));
+
+        // Set up physics (no velocity damping, dynamic body, physics enabled)
+        var objPhys = _entManager.GetComponent<PhysicsComponent>(obj);
+        _physSystem.SetBodyType(obj, BodyType.Dynamic, body: objPhys);
+        _physSystem.SetLinearDamping(obj, objPhys, 0.0f);
+        _physSystem.SetAngularDamping(obj, objPhys, 0.0f);
+
+        return obj;
     }
 
     [TearDown]
@@ -183,33 +210,5 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             Assert.That(gridPhys.LinearVelocity, Is.EqualTo(new Vector2(-1.0f, -2.0f)));
             Assert.That(gridPhys.AngularVelocity, Is.EqualTo(2.0f));
         });
-    }
-
-    // Spawn a bullet-like test object at the given position.
-    public EntityUid SetupTestObject(EntityCoordinates coords)
-    {
-        var obj = _entManager.SpawnEntity(null, coords);
-
-        _entManager.EnsureComponent<PhysicsComponent>(obj);
-        _entManager.EnsureComponent<FixturesComponent>(obj);
-
-        // Set up fixture.
-        var poly = new PolygonShape();
-        poly.Set(new List<Vector2>()
-        {
-            new(0.1f, -0.1f),
-            new(0.1f, 0.1f),
-            new(-0.1f, 0.1f),
-            new(-0.1f, -0.1f),
-        });
-        _fixtureSystem.CreateFixture(obj, "fix1", new Fixture(poly, 0, 0, false));
-
-        // Set up physics (no velocity damping, dynamic body, physics enabled)
-        _physSystem.SetBodyType(obj, BodyType.Dynamic);
-        _physSystem.SetCanCollide(obj, true);
-        _physSystem.SetLinearDamping(obj, _entManager.GetComponent<PhysicsComponent>(obj), 0.0f);
-        _physSystem.SetAngularDamping(obj, _entManager.GetComponent<PhysicsComponent>(obj), 0.0f);
-
-        return obj;
     }
 }
