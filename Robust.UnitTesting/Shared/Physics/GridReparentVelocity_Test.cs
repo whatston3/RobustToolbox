@@ -118,7 +118,9 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             _physSystem.Update(1.0f);
 
             // The object should be parented to the map and maintain its map velocity, the grid should be unchanged.
-            Assert.That(_entManager.GetComponent<TransformComponent>(_objUid).ParentUid, Is.EqualTo(_mapUid));
+            var objXform = _entManager.GetComponent<TransformComponent>(_objUid);
+            var gridXform = _entManager.GetComponent<TransformComponent>(_gridUid);
+            Assert.That(objXform.ParentUid, Is.EqualTo(_mapUid), $"Object is not on map - actual position: {objXform.ParentUid} {objXform.LocalPosition}, grid position: {gridXform.ParentUid} {gridXform.LocalPosition}");
             Assert.That(_entManager.GetComponent<PhysicsComponent>(_objUid).LinearVelocity, Is.EqualTo(new Vector2(4.5f, 6.75f)));
             Assert.That(_entManager.GetComponent<PhysicsComponent>(_gridUid).LinearVelocity, Is.EqualTo(new Vector2(1.0f, 2.0f)));
         });
@@ -144,7 +146,9 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             _physSystem.Update(1.0f);
 
             // The object should be parented to the grid and maintain its map velocity (slowing down), the grid should be unchanged.
-            Assert.That(_entManager.GetComponent<TransformComponent>(_objUid).ParentUid, Is.EqualTo(_gridUid));
+            var objXform = _entManager.GetComponent<TransformComponent>(_objUid);
+            var gridXform = _entManager.GetComponent<TransformComponent>(_gridUid);
+            Assert.That(objXform.ParentUid, Is.EqualTo(_gridUid), $"Object is not on grid - actual position: {objXform.ParentUid} {objXform.LocalPosition}, grid position: {gridXform.ParentUid} {gridXform.LocalPosition}");
             Assert.That(_entManager.GetComponent<PhysicsComponent>(_objUid).LinearVelocity, Is.EqualTo(new Vector2(-1.0f, -1.0f)));
             Assert.That(_entManager.GetComponent<PhysicsComponent>(_gridUid).LinearVelocity, Is.EqualTo(new Vector2(-1.0f, -2.0f)));
         });
@@ -172,7 +176,9 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             _physSystem.Update(1.0f);
 
             // The object should be parented to the map and maintain its map velocity, the grid should be unchanged.
-            Assert.That(_entManager.GetComponent<TransformComponent>(_objUid).ParentUid, Is.EqualTo(_mapUid));
+            var objXform = _entManager.GetComponent<TransformComponent>(_objUid);
+            var gridXform = _entManager.GetComponent<TransformComponent>(_gridUid);
+            Assert.That(objXform.ParentUid, Is.EqualTo(_mapUid), $"Object is not on map - actual position: {objXform.ParentUid} {objXform.LocalPosition}, grid position: {gridXform.ParentUid} {gridXform.LocalPosition}");
             // Not checking object's linear velocity in this case, non-zero contribution from grid angular velocity.
             Assert.That(_entManager.GetComponent<PhysicsComponent>(_objUid).AngularVelocity, Is.EqualTo(3.0f));
             var gridPhys = _entManager.GetComponent<PhysicsComponent>(_gridUid);
@@ -203,7 +209,9 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             _physSystem.Update(1.0f);
 
             // The object should be parented to the grid and maintain its map velocity (slowing down), the grid should be unchanged.
-            Assert.That(_entManager.GetComponent<TransformComponent>(_objUid).ParentUid, Is.EqualTo(_gridUid));
+            var objXform = _entManager.GetComponent<TransformComponent>(_objUid);
+            var gridXform = _entManager.GetComponent<TransformComponent>(_gridUid);
+            Assert.That(objXform.ParentUid, Is.EqualTo(_gridUid), $"Object is not on grid - actual position: {objXform.ParentUid} {objXform.LocalPosition}, grid position: {gridXform.ParentUid} {gridXform.LocalPosition}");
             // Not checking object's linear velocity in this case, non-zero contribution from grid angular velocity.
             Assert.That(_entManager.GetComponent<PhysicsComponent>(_objUid).AngularVelocity, Is.EqualTo(-1.0f));
             var gridPhys = _entManager.GetComponent<PhysicsComponent>(_gridUid);
