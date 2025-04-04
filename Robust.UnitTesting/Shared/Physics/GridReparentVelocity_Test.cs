@@ -14,7 +14,7 @@ using Robust.UnitTesting.Server;
 namespace Robust.UnitTesting.Shared.Physics;
 
 [TestFixture, TestOf(typeof(SharedPhysicsSystem))]
-public sealed class GridReparentVelocity_Test : RobustIntegrationTest
+public sealed class GridReparentVelocity_Test
 {
     private ISimulation _sim = default!;
     private IEntitySystemManager _systems = default!;
