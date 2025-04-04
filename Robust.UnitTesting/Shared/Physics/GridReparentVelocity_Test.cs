@@ -42,13 +42,13 @@ public sealed class GridReparentVelocity_Test
         _fixtureSystem = _systems.GetEntitySystem<FixtureSystem>();
         _mapSystem = _systems.GetEntitySystem<SharedMapSystem>();
         _physSystem = _systems.GetEntitySystem<SharedPhysicsSystem>();
-
-        _mapUid = _mapSystem.CreateMap(out _mapId);
     }
 
     [SetUp]
     public void Setup()
     {
+        _mapUid = _mapSystem.CreateMap(out _mapId);
+
         // Spawn a 1x1 grid centered at (0.5, 0.5), ensure it's movable and its velocity has no damping.
         var gridEnt = _mapManager.CreateGridEntity(_mapId);
         var gridPhys = _entManager.GetComponent<PhysicsComponent>(gridEnt);
@@ -94,6 +94,9 @@ public sealed class GridReparentVelocity_Test
         _gridUid = default!;
         _entManager.DeleteEntity(_objUid);
         _objUid = default!;
+        _mapSystem.DeleteMap(_mapId);
+        _mapId = default!;
+        _entManager.DeleteEntity(_mapUid);
     }
 
     // Moves an object off of a moving grid, checks for conservation of linear velocity.
