@@ -271,8 +271,9 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
 
             // The object should be parented to the grid and maintain its map velocity (slowing down), the grid should be unchanged.
             Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo(grid));
-            // Not checking linear velocity in this case, non-zero angular velocity contribution from moving onto the grid.
+            // Not checking object's linear velocity in this case, non-zero angular velocity contribution from moving onto the grid.
             Assert.That(entManager.GetComponent<PhysicsComponent>(obj).AngularVelocity, Is.EqualTo(-1.0f));
+            Assert.That(entManager.GetComponent<PhysicsComponent>(grid).LinearVelocity, Is.EqualTo(new Vector2(-1.0f, -2.0f)));
             Assert.That(entManager.GetComponent<PhysicsComponent>(grid).AngularVelocity, Is.EqualTo(2.0f));
         });
     }
