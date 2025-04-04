@@ -58,6 +58,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         _physSystem.SetAngularDamping(gridEnt, gridPhys, 0.0f);
 
         _mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
+
         _gridUid = gridEnt.Owner;
     }
 
@@ -85,7 +86,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             new(-0.1f, -0.1f),
         });
         _fixtureSystem.CreateFixture(obj, "fix1", new Fixture(poly, 0, 0, false), manager: objFix, body: objPhys);
-        _physSystem.WakeBody(obj, manager: objFix, body: objPhys);
+        _physSystem.SetCanCollide(obj, true, body: objPhys);
 
         return obj;
     }
@@ -132,7 +133,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
     public async Task TestLinearVelocityOnlyMoveOntoGrid()
     {
         // Spawn our test object 1 m off of the middle of the grid in both directions.
-        _objUid = SetupTestObject(new EntityCoordinates(_mapUid, 1.0f, 1.0f));
+        _objUid = SetupTestObject(new EntityCoordinates(_mapUid, 1.5f, 1.5f));
 
         Assert.Multiple(() =>
         {
@@ -193,7 +194,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
     public async Task TestLinearAndAngularVelocityMoveOntoGrid()
     {
         // Spawn our test object 1 m off of the middle of the grid in both directions.
-        _objUid = SetupTestObject(new EntityCoordinates(_mapUid, 1.0f, 1.0f));
+        _objUid = SetupTestObject(new EntityCoordinates(_mapUid, 1.5f, 1.5f));
 
         Assert.Multiple(() =>
         {
