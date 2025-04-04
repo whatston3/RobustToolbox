@@ -79,8 +79,9 @@ public sealed class GridReparentVelocity_Test
         _physSystem.SetAngularDamping(obj, objPhys, 0.0f);
 
         // Set up fixture.
-        var aabb = new PhysShapeAabb(0.1f);
-        _fixtureSystem.CreateFixture(obj, "fix1", new Fixture(aabb, 0, 0, false), manager: objFix, body: objPhys);
+        var poly = new PolygonShape();
+        poly.SetAsBox(0.1f, 0.1f);
+        _fixtureSystem.CreateFixture(obj, "fix1", new Fixture(poly, 0, 0, false), manager: objFix, body: objPhys);
         _physSystem.WakeBody(obj, body: objPhys);
 
         return obj;
