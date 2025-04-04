@@ -78,13 +78,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
 
         // Set up fixture.
         var poly = new PolygonShape();
-        poly.Set(new List<Vector2>()
-        {
-            new(0.1f, -0.1f),
-            new(0.1f, 0.1f),
-            new(-0.1f, 0.1f),
-            new(-0.1f, -0.1f),
-        });
+        poly.SetAsBox(0.1f, 0.1f);
         _fixtureSystem.CreateFixture(obj, "fix1", new Fixture(poly, 0, 0, false), manager: objFix, body: objPhys);
         _physSystem.SetCanCollide(obj, true, body: objPhys);
 
