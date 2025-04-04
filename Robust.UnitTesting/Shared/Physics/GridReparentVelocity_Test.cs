@@ -17,14 +17,6 @@ namespace Robust.UnitTesting.Shared.Physics;
 [TestFixture, TestOf(typeof(SharedPhysicsSystem))]
 public sealed class GridReparentVelocity_Test : RobustIntegrationTest
 {
-    private static readonly string Prototypes = @"
-- type: entity
-  id: ReparentTestObject
-  components:
-  - type: Physics
-    bodyType: Dynamic
-";
-
     private ISimulation _sim = default!;
     private IEntitySystemManager _systems = default!;
     private IEntityManager _entManager = default!;
@@ -43,7 +35,6 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
     public void FixtureSetup()
     {
         _sim = RobustServerSimulation.NewSimulation()
-            .RegisterPrototypes(protoMan => protoMan.LoadString(Prototypes))
             .InitializeInstance();
 
         _systems = _sim.Resolve<IEntitySystemManager>();
@@ -61,9 +52,9 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
     {
         // Spawn a 1x1 grid centered at (0.5, 0.5), ensure it's movable and its velocity has no damping.
         var gridEnt = _mapManager.CreateGridEntity(_mapId);
-        _physSystem.SetCanCollide(gridEnt, true);
-        _physSystem.SetBodyType(gridEnt, BodyType.Dynamic);
         var gridPhys = _entManager.GetComponent<PhysicsComponent>(gridEnt);
+        _physSystem.SetBodyType(gridEnt, BodyType.Dynamic, body: gridPhys);
+        _physSystem.SetCanCollide(gridEnt, true, body: gridPhys);
         _physSystem.SetLinearDamping(gridEnt, gridPhys, 0.0f);
         _physSystem.SetAngularDamping(gridEnt, gridPhys, 0.0f);
 
@@ -194,12 +185,15 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         });
     }
 
-    // Spawn a bullet-like test object at the given position, ensure its velocity has no damping.
+    // Spawn a bullet-like test object at the given position.
     public EntityUid SetupTestObject(EntityCoordinates coords)
     {
-        var obj = _entManager.SpawnEntity("ReparentTestObject", coords);
+        var obj = _entManager.SpawnEntity(null, coords);
 
+        _entManager.EnsureComponent<PhysicsComponent>(obj);
         _entManager.EnsureComponent<FixturesComponent>(obj);
+
+        // Set up fixture.
         var poly = new PolygonShape();
         poly.Set(new List<Vector2>()
         {
@@ -210,6 +204,8 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         });
         _fixtureSystem.CreateFixture(obj, "fix1", new Fixture(poly, 0, 0, false));
 
+        // Set up physics (no velocity damping, dynamic body, physics enabled)
+        _physSystem.SetBodyType(obj, BodyType.Dynamic);
         _physSystem.SetCanCollide(obj, true);
         _physSystem.SetLinearDamping(obj, _entManager.GetComponent<PhysicsComponent>(obj), 0.0f);
         _physSystem.SetAngularDamping(obj, _entManager.GetComponent<PhysicsComponent>(obj), 0.0f);
