@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -5,7 +6,9 @@ using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using Robust.Shared.Physics;
+using Robust.Shared.Physics.Collision.Shapes;
 using Robust.Shared.Physics.Components;
+using Robust.Shared.Physics.Dynamics;
 using Robust.Shared.Physics.Systems;
 using Robust.UnitTesting.Server;
 
@@ -20,21 +23,15 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
   components:
   - type: Physics
     bodyType: Dynamic
-  - type: Fixtures
-    fixtures:
-      fix1:
-        shape:
-          !type:PhysShapeAabb
-          bounds: '-0.1,-0.1,0.1,0.1'
-        hard: false
 ";
 
     private ISimulation _sim = default!;
     private IEntitySystemManager _systems = default!;
     private IEntityManager _entManager = default!;
     private IMapManager _mapManager = default!;
-    private SharedPhysicsSystem _physSystem = default!;
+    private FixtureSystem _fixtureSystem = default!;
     private SharedMapSystem _mapSystem = default!;
+    private SharedPhysicsSystem _physSystem = default!;
 
     // Test objects.
     private EntityUid _mapUid = default!;
@@ -52,8 +49,9 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         _systems = _sim.Resolve<IEntitySystemManager>();
         _entManager = _sim.Resolve<IEntityManager>();
         _mapManager = _sim.Resolve<IMapManager>();
-        _physSystem = _systems.GetEntitySystem<SharedPhysicsSystem>();
+        _fixtureSystem = _systems.GetEntitySystem<FixtureSystem>();
         _mapSystem = _systems.GetEntitySystem<SharedMapSystem>();
+        _physSystem = _systems.GetEntitySystem<SharedPhysicsSystem>();
         
         _mapUid = _mapSystem.CreateMap(out _mapId);
     }
@@ -191,10 +189,22 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         return gridEnt.Owner;
     }
 
-    // Spawn a test object at the given position, ensure its velocity has no damping.
+    // Spawn a bullet-like test object at the given position, ensure its velocity has no damping.
     public EntityUid SetupTestObject(EntityCoordinates coords)
     {
         var obj = _entManager.SpawnEntity("ReparentTestObject", coords);
+
+        _entManager.EnsureComponent<FixturesComponent>(obj);
+        var poly = new PolygonShape();
+        poly.Set(new List<Vector2>()
+        {
+            new(0.1f, -0.1f),
+            new(0.1f, 0.1f),
+            new(-0.1f, 0.1f),
+            new(-0.1f, -0.1f),
+        });
+        _fixtureSystem.CreateFixture(obj, "fix1", new Fixture(poly, 1, 1, false));
+
         _physSystem.SetCanCollide(obj, true);
         _physSystem.SetLinearDamping(obj, _entManager.GetComponent<PhysicsComponent>(obj), 0.0f);
         _physSystem.SetAngularDamping(obj, _entManager.GetComponent<PhysicsComponent>(obj), 0.0f);
