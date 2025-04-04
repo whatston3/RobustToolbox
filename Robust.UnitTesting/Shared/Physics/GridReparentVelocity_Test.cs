@@ -38,6 +38,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
 
     // Test objects.
     private EntityUid _mapUid = default!;
+    private MapId _mapId = default!;
     private EntityUid _gridUid = default!;
     private EntityUid _objUid = default!;
 
@@ -53,13 +54,14 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         _mapManager = _sim.Resolve<IMapManager>();
         _physSystem = _systems.GetEntitySystem<SharedPhysicsSystem>();
         _mapSystem = _systems.GetEntitySystem<SharedMapSystem>();
+        
+        _mapUid = _mapSystem.CreateMap(out _mapId);
     }
 
     [SetUp]
     public void Setup()
     {
-        _mapUid = _mapSystem.CreateMap(out var mapId);
-        _gridUid = SetupTestGrid(mapId);
+        _gridUid = SetupTestGrid(_mapId);
     }
 
     [TearDown]
