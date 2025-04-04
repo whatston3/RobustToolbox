@@ -132,7 +132,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
     public async Task TestLinearVelocityOnlyMoveOntoGrid()
     {
         // Spawn our test object 1 m off of the middle of the grid in both directions.
-        _objUid = SetupTestObject(new EntityCoordinates(_mapUid, 1.5f, 1.5f));
+        _objUid = SetupTestObject(new EntityCoordinates(_mapUid, 1.0f, 1.0f));
 
         Assert.Multiple(() =>
         {
@@ -193,7 +193,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
     public async Task TestLinearAndAngularVelocityMoveOntoGrid()
     {
         // Spawn our test object 1 m off of the middle of the grid in both directions.
-        _objUid = SetupTestObject(new EntityCoordinates(_mapUid, 1.5f, 1.5f));
+        _objUid = SetupTestObject(new EntityCoordinates(_mapUid, 1.0f, 1.0f));
 
         Assert.Multiple(() =>
         {
