@@ -66,8 +66,14 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
     {
         var obj = _entManager.SpawnEntity(null, coords);
 
-        _entManager.EnsureComponent<PhysicsComponent>(obj);
-        _entManager.EnsureComponent<FixturesComponent>(obj);
+        var objPhys = _entManager.EnsureComponent<PhysicsComponent>(obj);
+        var objFix = _entManager.EnsureComponent<FixturesComponent>(obj);
+
+        // Set up physics (no velocity damping, dynamic body, physics enabled)
+        _entManager.GetComponent<PhysicsComponent>(obj);
+        _physSystem.SetBodyType(obj, BodyType.Dynamic, body: objPhys);
+        _physSystem.SetLinearDamping(obj, objPhys, 0.0f);
+        _physSystem.SetAngularDamping(obj, objPhys, 0.0f);
 
         // Set up fixture.
         var poly = new PolygonShape();
@@ -78,13 +84,8 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             new(-0.1f, 0.1f),
             new(-0.1f, -0.1f),
         });
-        _fixtureSystem.CreateFixture(obj, "fix1", new Fixture(poly, 0, 0, false));
-
-        // Set up physics (no velocity damping, dynamic body, physics enabled)
-        var objPhys = _entManager.GetComponent<PhysicsComponent>(obj);
-        _physSystem.SetBodyType(obj, BodyType.Dynamic, body: objPhys);
-        _physSystem.SetLinearDamping(obj, objPhys, 0.0f);
-        _physSystem.SetAngularDamping(obj, objPhys, 0.0f);
+        _fixtureSystem.CreateFixture(obj, "fix1", new Fixture(poly, 0, 0, false), manager: objFix, body: objPhys);
+        _physSystem.WakeBody(obj, manager: objFix, body: objPhys);
 
         return obj;
     }
