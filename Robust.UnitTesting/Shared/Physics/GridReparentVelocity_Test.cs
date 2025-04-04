@@ -207,7 +207,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             var objPhys = entManager.GetComponent<PhysicsComponent>(obj);
             Assert.That(objPhys.LinearVelocity, Is.EqualTo(new Vector2(4.5f, 6.75f)));
             Assert.That(objPhys.AngularVelocity, Is.EqualTo(3.0f));
-            var gridPhys = entManager.GetComponent<PhysicsComponent>(obj);
+            var gridPhys = entManager.GetComponent<PhysicsComponent>(grid);
             Assert.That(gridPhys.LinearVelocity, Is.EqualTo(new Vector2(1.0f, 2.0f)));
             Assert.That(gridPhys.AngularVelocity, Is.EqualTo(2.0f));
         });
@@ -273,7 +273,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
             Assert.That(entManager.GetComponent<TransformComponent>(obj).ParentUid, Is.EqualTo(grid));
             // Not checking object's linear velocity in this case, non-zero angular velocity contribution from moving onto the grid.
             Assert.That(entManager.GetComponent<PhysicsComponent>(obj).AngularVelocity, Is.EqualTo(-1.0f));
-            var gridPhys = entManager.GetComponent<PhysicsComponent>(grid).LinearVelocity;
+            var gridPhys = entManager.GetComponent<PhysicsComponent>(grid);
             Assert.That(gridPhys.LinearVelocity, Is.EqualTo(new Vector2(-1.0f, -2.0f)));
             Assert.That(gridPhys.AngularVelocity, Is.EqualTo(2.0f));
         });
