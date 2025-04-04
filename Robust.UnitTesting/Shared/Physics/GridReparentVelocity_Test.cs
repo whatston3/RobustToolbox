@@ -28,6 +28,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         hard: false
 ";
 
+    // Moves an object off of a moving grid, checks for conservation of linear velocity.
     [Test]
     public async Task TestLinearVelocityOnlyMoveOffGrid()
     {
@@ -36,7 +37,6 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
 
         await server.WaitIdleAsync();
 
-        // Checks that FindGridContacts succesfully overlaps a grid + map broadphase physics body
         var systems = server.ResolveDependency<IEntitySystemManager>();
         var fixtureSystem = systems.GetEntitySystem<FixtureSystem>();
         var mapManager = server.ResolveDependency<IMapManager>();
@@ -51,7 +51,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         EntityUid obj = default;
         await server.WaitPost(() =>
         {
-            map = server.System<SharedMapSystem>().CreateMap(out var mapId);
+            map = mapSystem.CreateMap(out var mapId);
 
             // Spawn a grid with one tile, ensure it's movable and its velocity has no damping.
             var gridEnt = mapManager.CreateGridEntity(mapId);
@@ -87,6 +87,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         });
     }
 
+    // Moves an object onto a moving grid, checks for conservation of linear velocity.
     [Test]
     public async Task TestLinearVelocityOnlyMoveOntoGrid()
     {
@@ -95,7 +96,6 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
 
         await server.WaitIdleAsync();
 
-        // Checks that FindGridContacts succesfully overlaps a grid + map broadphase physics body
         var systems = server.ResolveDependency<IEntitySystemManager>();
         var fixtureSystem = systems.GetEntitySystem<FixtureSystem>();
         var mapManager = server.ResolveDependency<IMapManager>();
@@ -110,7 +110,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         EntityUid obj = default;
         await server.WaitPost(() =>
         {
-            map = server.System<SharedMapSystem>().CreateMap(out var mapId);
+            map = mapSystem.CreateMap(out var mapId);
 
             // Spawn a grid with one tile, ensure it's movable and its velocity has no damping.
             var gridEnt = mapManager.CreateGridEntity(mapId);
@@ -146,6 +146,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         });
     }
 
+    // Moves a rotating object off of a rotating grid, checks for conservation of angular velocity.
     [Test]
     public async Task TestLinearAndAngularVelocityMoveOffGrid()
     {
@@ -154,7 +155,6 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
 
         await server.WaitIdleAsync();
 
-        // Checks that FindGridContacts succesfully overlaps a grid + map broadphase physics body
         var systems = server.ResolveDependency<IEntitySystemManager>();
         var fixtureSystem = systems.GetEntitySystem<FixtureSystem>();
         var mapManager = server.ResolveDependency<IMapManager>();
@@ -169,7 +169,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         EntityUid obj = default;
         await server.WaitPost(() =>
         {
-            map = server.System<SharedMapSystem>().CreateMap(out var mapId);
+            map = mapSystem.CreateMap(out var mapId);
 
             // Spawn a grid with one tile, ensure it's movable and its velocities have no damping.
             var gridEnt = mapManager.CreateGridEntity(mapId);
@@ -212,6 +212,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         });
     }
 
+    // Moves a rotating object onto a rotating grid, checks for conservation of angular velocity.
     [Test]
     public async Task TestLinearAndAngularVelocityMoveOntoGrid()
     {
@@ -220,7 +221,6 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
 
         await server.WaitIdleAsync();
 
-        // Checks that FindGridContacts succesfully overlaps a grid + map broadphase physics body
         var systems = server.ResolveDependency<IEntitySystemManager>();
         var fixtureSystem = systems.GetEntitySystem<FixtureSystem>();
         var mapManager = server.ResolveDependency<IMapManager>();
@@ -235,7 +235,7 @@ public sealed class GridReparentVelocity_Test : RobustIntegrationTest
         EntityUid obj = default;
         await server.WaitPost(() =>
         {
-            map = server.System<SharedMapSystem>().CreateMap(out var mapId);
+            map = mapSystem.CreateMap(out var mapId);
 
             // Spawn a grid with one tile, ensure it's movable and its velocity has no damping.
             var gridEnt = mapManager.CreateGridEntity(mapId);
