@@ -52,11 +52,13 @@ public sealed class GridReparentVelocity_Test
         // Spawn a 1x1 grid centered at (0.5, 0.5), ensure it's movable and its velocity has no damping.
         var gridEnt = _mapManager.CreateGridEntity(_mapId);
         var gridPhys = _entManager.GetComponent<PhysicsComponent>(gridEnt);
+        _physSystem.SetSleepingAllowed(gridEnt, gridPhys, false);
         _physSystem.SetBodyType(gridEnt, BodyType.Dynamic, body: gridPhys);
         _physSystem.SetLinearDamping(gridEnt, gridPhys, 0.0f);
         _physSystem.SetAngularDamping(gridEnt, gridPhys, 0.0f);
 
         _mapSystem.SetTile(gridEnt, Vector2i.Zero, new Tile(1));
+        _physSystem.WakeBody(gridEnt, body: gridPhys);
 
         _gridUid = gridEnt.Owner;
     }
@@ -71,6 +73,7 @@ public sealed class GridReparentVelocity_Test
 
         // Set up physics (no velocity damping, dynamic body, physics enabled)
         _entManager.GetComponent<PhysicsComponent>(obj);
+        _physSystem.SetSleepingAllowed(obj, objPhys, false);
         _physSystem.SetBodyType(obj, BodyType.Dynamic, body: objPhys);
         _physSystem.SetLinearDamping(obj, objPhys, 0.0f);
         _physSystem.SetAngularDamping(obj, objPhys, 0.0f);
@@ -78,7 +81,7 @@ public sealed class GridReparentVelocity_Test
         // Set up fixture.
         var aabb = new PhysShapeAabb(0.1f);
         _fixtureSystem.CreateFixture(obj, "fix1", new Fixture(aabb, 0, 0, false), manager: objFix, body: objPhys);
-        _physSystem.SetCanCollide(obj, true, body: objPhys);
+        _physSystem.WakeBody(obj, body: objPhys);
 
         return obj;
     }
