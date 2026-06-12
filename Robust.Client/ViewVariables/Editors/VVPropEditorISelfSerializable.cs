@@ -11,7 +11,7 @@ namespace Robust.Client.ViewVariables.Editors
         {
             var lineEdit = new LineEdit
             {
-                Text = ((ISelfSerialize)value!).Serialize(),
+                Text = ((ISelfSerialize?)value)?.Serialize() ?? NullString,
                 Editable = !ReadOnly,
                 HorizontalExpand = true,
             };
@@ -20,6 +20,12 @@ namespace Robust.Client.ViewVariables.Editors
             {
                 lineEdit.OnTextEntered += e =>
                 {
+                    if (Nullable && IsNullString(e.Text))
+                    {
+                        ValueChanged(null);
+                        return;
+                    }
+
                     var instance = (ISelfSerialize)Activator.CreateInstance(typeof(T))!;
                     instance.Deserialize(e.Text);
                     ValueChanged(instance);

@@ -10,7 +10,7 @@ namespace Robust.Client.ViewVariables.Editors
         {
             var lineEdit = new LineEdit
             {
-                Text = ((Color)value!).ToHex(),
+                Text = ((Color?)value)?.ToHex() ?? NullString,
                 Editable = !ReadOnly,
                 HorizontalExpand = true,
                 ToolTip = "Hex color here",
@@ -21,8 +21,15 @@ namespace Robust.Client.ViewVariables.Editors
             {
                 lineEdit.OnTextEntered += e =>
                 {
-                    var val = Color.FromHex(e.Text);
-                    ValueChanged(val);
+                    if (Nullable && IsNullString(e.Text))
+                    {
+                        ValueChanged(null);
+                    }
+                    else
+                    {
+                        var val = Color.FromHex(e.Text);
+                        ValueChanged(val);
+                    }
                 };
             }
 

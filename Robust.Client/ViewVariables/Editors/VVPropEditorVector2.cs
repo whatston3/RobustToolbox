@@ -44,7 +44,12 @@ namespace Robust.Client.ViewVariables.Editors
 
             hBoxContainer.AddChild(y);
 
-            if (_intVec)
+            if (value == null)
+            {
+                x.Text = NullString;
+                y.Text = NullString;
+            }
+            else if (_intVec)
             {
                 var vec = (Vector2i) value!;
                 x.Text = vec.X.ToString(CultureInfo.InvariantCulture);
@@ -59,6 +64,10 @@ namespace Robust.Client.ViewVariables.Editors
 
             void OnEntered(LineEdit.LineEditEventArgs e)
             {
+                if (Nullable && (IsNullString(x.Text) || IsNullString(y.Text)))
+                {
+                    ValueChanged(null);
+                }
                 if (_intVec)
                 {
                     var xVal = int.Parse(x.Text, CultureInfo.InvariantCulture);

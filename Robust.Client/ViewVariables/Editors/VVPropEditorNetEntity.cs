@@ -18,17 +18,22 @@ public sealed class VVPropEditorNetEntity : VVPropEditor
             MinSize = new Vector2(200, 0)
         };
 
-        var nuid = (NetEntity)value!;
+        var nuid = (NetEntity?)value;
         var lineEdit = new LineEdit
         {
-            Text = nuid.ToString(),
+            Text = nuid?.ToString() ?? NullString,
             Editable = !ReadOnly,
             HorizontalExpand = true,
         };
         if (!ReadOnly)
         {
             lineEdit.OnTextEntered += e =>
-                ValueChanged(NetEntity.Parse(e.Text));
+            {
+                if (Nullable && IsNullString(e.Text))
+                    ValueChanged(null);
+                else
+                    ValueChanged(NetEntity.Parse(e.Text));
+            };
         }
 
         var vvButton = new Button()

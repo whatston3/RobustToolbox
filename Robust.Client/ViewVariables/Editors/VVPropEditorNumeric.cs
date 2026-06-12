@@ -21,13 +21,15 @@ namespace Robust.Client.ViewVariables.Editors
         {
             var lineEdit = new LineEdit
             {
-                Text = NumberToText(value!),
+                Text = value == null ? NullString : NumberToText(value),
                 Editable = !ReadOnly,
                 MinSize = new Vector2(240, 0)
             };
             lineEdit.OnTextEntered += e =>
             {
-                if (TryTextToNumber(e.Text, _type, out var val))
+                if (Nullable && IsNullString(e.Text))
+                    ValueChanged(null);
+                else if (TryTextToNumber(e.Text, _type, out var val))
                     ValueChanged(val);
             };
             return lineEdit;

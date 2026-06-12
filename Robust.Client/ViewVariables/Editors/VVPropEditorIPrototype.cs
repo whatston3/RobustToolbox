@@ -36,6 +36,7 @@ namespace Robust.Client.ViewVariables.Editors
                 {
                     IPrototype prototype => prototype.ID,
                     ViewVariablesBlobMembers.PrototypeReferenceToken token => token.ID ?? string.Empty,
+                    null => NullString,
                     _ => string.Empty
                 },
                 Editable = !ReadOnly
@@ -43,7 +44,10 @@ namespace Robust.Client.ViewVariables.Editors
 
             _lineEdit.OnTextEntered += ev =>
             {
-                SetNewValue(ev.Text);
+                if (Nullable && IsNullString(ev.Text))
+                    ValueChanged(null, false);
+                else
+                    SetNewValue(ev.Text);
             };
 
             var list = new Button() { Text = "List", Disabled = ReadOnly };

@@ -5,6 +5,7 @@ using System.Numerics;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.IoC;
+using Robust.Shared.Utility;
 using Robust.Shared.ViewVariables;
 using static Robust.Client.UserInterface.Controls.BoxContainer;
 using CS = System.Runtime.CompilerServices;
@@ -89,11 +90,12 @@ internal sealed partial class VVPropEditorTuple : VVPropEditor
 
     private VVPropEditor CreateBox<T>(T? entry, BoxContainer parent)
     {
-        var editor = _viewVariables.PropertyFor(entry?.GetType());
+        var entryType = entry?.GetType();
+        var editor = _viewVariables.PropertyFor(entryType);
         // We disallow editing of serverside-only tuples because, uh, I don't
         // know how to make it work. Presumably it'd have to be something
         // similarly cursed to what I did in ToTuple above.
-        parent.AddChild(editor.Initialize(entry, _readOnly));
+        parent.AddChild(editor.Initialize(entry, _readOnly, entryType?.IsNullable() ?? false));
         return editor;
     }
 

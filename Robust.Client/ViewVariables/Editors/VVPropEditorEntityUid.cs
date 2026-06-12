@@ -18,17 +18,26 @@ namespace Robust.Client.ViewVariables.Editors
                 MinSize = new Vector2(200, 0)
             };
 
-            var uid = (EntityUid)value!;
+            var uid = (EntityUid?)value;
             var lineEdit = new LineEdit
             {
-                Text = uid.ToString(),
+                Text = uid?.ToString() ?? NullString,
                 Editable = !ReadOnly,
                 HorizontalExpand = true,
             };
             if (!ReadOnly)
             {
                 lineEdit.OnTextEntered += e =>
-                    ValueChanged(EntityUid.Parse(e.Text));
+                {
+                    if (Nullable && IsNullString(e.Text))
+                    {
+                        ValueChanged(null);
+                    }
+                    else
+                    {
+                        ValueChanged(EntityUid.Parse(e.Text));
+                    }
+                };
             }
 
             var vvButton = new Button()

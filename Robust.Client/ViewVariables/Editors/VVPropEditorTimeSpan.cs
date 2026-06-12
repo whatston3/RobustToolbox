@@ -8,17 +8,19 @@ namespace Robust.Client.ViewVariables.Editors
     {
         protected override Control MakeUI(object? value)
         {
-            var ts = (TimeSpan) value!;
+            var ts = (TimeSpan?) value;
             var lineEdit = new LineEdit
             {
-                Text = ts.ToString(),
+                Text = ts?.ToString() ?? NullString,
                 Editable = !ReadOnly,
                 MinSize = new(240, 0)
             };
 
             lineEdit.OnTextEntered += e =>
             {
-                if (TimeSpan.TryParse(e.Text, out var span))
+                if (Nullable && IsNullString(e.Text))
+                    ValueChanged(null);
+                else if (TimeSpan.TryParse(e.Text, out var span))
                     ValueChanged(span);
             };
 

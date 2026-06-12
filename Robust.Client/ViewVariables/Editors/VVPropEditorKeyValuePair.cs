@@ -2,6 +2,7 @@ using System.Linq;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.IoC;
+using Robust.Shared.Utility;
 using Robust.Shared.ViewVariables;
 using static Robust.Client.UserInterface.Controls.BoxContainer;
 
@@ -42,8 +43,8 @@ namespace Robust.Client.ViewVariables.Editors
             _propertyEditorK = _viewVariables.PropertyFor(typeK);
             _propertyEditorV = _viewVariables.PropertyFor(typeV);
 
-            var controlK = _propertyEditorK.Initialize(valueK, true);
-            var controlV = _propertyEditorV.Initialize(valueV, true);
+            var controlK = _propertyEditorK.Initialize(valueK, true, typeK?.IsNullable() ?? false);
+            var controlV = _propertyEditorV.Initialize(valueV, true, typeV?.IsNullable() ?? false);
 
             hBox.AddChild(controlK);
             hBox.AddChild(controlV);

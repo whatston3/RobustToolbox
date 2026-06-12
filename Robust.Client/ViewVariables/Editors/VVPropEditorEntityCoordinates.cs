@@ -14,7 +14,7 @@ namespace Robust.Client.ViewVariables.Editors
     {
         protected override Control MakeUI(object? value)
         {
-            var coords = (EntityCoordinates) value!;
+            var coords = (EntityCoordinates?) value;
             var hBoxContainer = new BoxContainer
             {
                 Orientation = LayoutOrientation.Horizontal,
@@ -31,7 +31,7 @@ namespace Robust.Client.ViewVariables.Editors
                 HorizontalExpand = true,
                 PlaceHolder = "Grid ID",
                 ToolTip = "Grid ID",
-                Text = coords.GetGridUid(entityManager)?.ToString() ?? ""
+                Text = coords == null ? NullString : coords.Value.GetGridUid(entityManager)?.ToString() ?? ""
             };
 
             hBoxContainer.AddChild(gridId);
@@ -44,7 +44,7 @@ namespace Robust.Client.ViewVariables.Editors
                 HorizontalExpand = true,
                 PlaceHolder = "X",
                 ToolTip = "X",
-                Text = coords.X.ToString(CultureInfo.InvariantCulture)
+                Text = (coords?.X ?? 0).ToString(CultureInfo.InvariantCulture)
             };
 
             hBoxContainer.AddChild(x);
@@ -55,7 +55,7 @@ namespace Robust.Client.ViewVariables.Editors
                 HorizontalExpand = true,
                 PlaceHolder = "Y",
                 ToolTip = "Y",
-                Text = coords.Y.ToString(CultureInfo.InvariantCulture)
+                Text = (coords?.Y ?? 0).ToString(CultureInfo.InvariantCulture)
             };
 
             hBoxContainer.AddChild(y);
@@ -66,6 +66,12 @@ namespace Robust.Client.ViewVariables.Editors
                 var mapManager = IoCManager.Resolve<IMapManager>();
                 var xVal = float.Parse(x.Text, CultureInfo.InvariantCulture);
                 var yVal = float.Parse(y.Text, CultureInfo.InvariantCulture);
+
+                if (Nullable && IsNullString(gridId.Text))
+                {
+                    ValueChanged(null);
+                    return;
+                }
 
                 if (!entityManager.HasComponent<MapGridComponent>(gridVal))
                 {

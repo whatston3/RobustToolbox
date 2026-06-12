@@ -9,14 +9,20 @@ namespace Robust.Client.ViewVariables.Editors
         {
             var lineEdit = new LineEdit
             {
-                Text = (string) (value ?? ""),
+                Text = (string?)value ?? NullString,
                 Editable = !ReadOnly,
                 HorizontalExpand = true,
             };
 
             if (!ReadOnly)
             {
-                lineEdit.OnTextEntered += e => ValueChanged(e.Text);
+                lineEdit.OnTextEntered += e =>
+                {
+                    if (Nullable && IsNullString(e.Text))
+                        ValueChanged(null);
+                    else
+                        ValueChanged(e.Text);
+                };
             }
 
             return lineEdit;

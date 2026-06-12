@@ -20,7 +20,7 @@ internal sealed partial class VVPropEditorProtoId<T> : VVPropEditor where T : cl
         // ID LineEdit
         _lineEdit = new LineEdit
         {
-            Text = (ProtoId<T>)(value ?? ""),
+            Text = (ProtoId<T>?)value ?? NullString,
             PlaceHolder = _loc.GetString("vv-protoid-id-placeholder"),
             Editable = !ReadOnly,
             HorizontalExpand = true,
@@ -30,7 +30,10 @@ internal sealed partial class VVPropEditorProtoId<T> : VVPropEditor where T : cl
         {
             _lineEdit.OnTextEntered += e =>
             {
-                SetValue(e.Text);
+                if (Nullable && IsNullString(e.Text))
+                    ValueChanged(null);
+                else
+                    SetValue(e.Text);
             };
         }
 

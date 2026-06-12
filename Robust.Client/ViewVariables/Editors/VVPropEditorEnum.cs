@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
-using Robust.Shared.Utility;
 
 namespace Robust.Client.ViewVariables.Editors
 {
-    sealed class VVPropEditorEnum : VVPropEditor
+    sealed class VVPropEditorEnum<T> : VVPropEditor
     {
         private readonly Dictionary<int, int> _idToValue = new();
         private readonly Dictionary<int, int> _valueToId = new();
@@ -20,8 +19,7 @@ namespace Robust.Client.ViewVariables.Editors
 
         protected override Control MakeUI(object? value)
         {
-            DebugTools.Assert(value!.GetType().IsEnum);
-            var enumType = value.GetType();
+            var enumType = typeof(T);
             var enumList = Enum.GetValues(enumType);
             var enumNames = Enum.GetNames(enumType);
             var underlyingType = Enum.GetUnderlyingType(enumType);

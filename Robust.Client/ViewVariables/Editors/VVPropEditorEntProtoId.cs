@@ -18,7 +18,7 @@ internal sealed partial class VVPropEditorEntProtoId : VVPropEditor
     {
         var lineEdit = new LineEdit
         {
-            Text = (EntProtoId)(value ?? ""),
+            Text = (EntProtoId?)value ?? NullString,
             Editable = !ReadOnly,
             HorizontalExpand = true,
         };
@@ -27,6 +27,12 @@ internal sealed partial class VVPropEditorEntProtoId : VVPropEditor
         {
             lineEdit.OnTextEntered += e =>
             {
+                if (Nullable && IsNullString(e.Text))
+                {
+                    ValueChanged(null);
+                    return;
+                }
+
                 var id = (EntProtoId)e.Text;
                 if (_protoMan.HasIndex(id))
                     ValueChanged(id);

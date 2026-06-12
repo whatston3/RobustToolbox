@@ -22,7 +22,7 @@ namespace Robust.Client.ViewVariables.Editors
         {
             if (value == null)
             {
-                return new Label { Text = "null", Align = Label.AlignMode.Right };
+                return new Label { Text = NullString, Align = Label.AlignMode.Right };
             }
 
             _localValue = value;

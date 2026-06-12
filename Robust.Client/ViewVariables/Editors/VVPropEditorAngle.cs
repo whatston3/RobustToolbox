@@ -16,10 +16,10 @@ namespace Robust.Client.ViewVariables.Editors
                 Orientation = LayoutOrientation.Horizontal,
                 MinSize = new Vector2(200, 0)
             };
-            var angle = (Angle) value!;
+            var angle = (Angle?)value;
             var lineEdit = new LineEdit
             {
-                Text = angle.Degrees.ToString(CultureInfo.InvariantCulture),
+                Text = angle?.Degrees.ToString(CultureInfo.InvariantCulture) ?? NullString,
                 Editable = !ReadOnly,
                 HorizontalExpand = true
             };
@@ -27,6 +27,12 @@ namespace Robust.Client.ViewVariables.Editors
             {
                 lineEdit.OnTextEntered += e =>
                 {
+                    if (Nullable && IsNullString(e.Text))
+                    {
+                        ValueChanged(null);
+                        return;
+                    }
+
                     if (!double.TryParse(e.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out var number))
                         return;
 

@@ -10,6 +10,7 @@ using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
+using Robust.Shared.Utility;
 using Robust.Shared.ViewVariables;
 using CS = System.Runtime.CompilerServices;
 
@@ -39,7 +40,6 @@ internal sealed partial class ViewVariableControlFactory : IViewVariableControlF
         RegisterForType<double>(_ => new VVPropEditorNumeric(VVPropEditorNumeric.NumberType.Double));
         RegisterForType<decimal>(_ => new VVPropEditorNumeric(VVPropEditorNumeric.NumberType.Decimal));
         RegisterForType<string>(_ => new VVPropEditorString());
-        RegisterForType<EntProtoId?>(_ => new VVPropEditorNullableEntProtoId());
         RegisterForType<EntProtoId>(_ => new VVPropEditorEntProtoId());
         RegisterForType<Vector2>(_ => new VVPropEditorVector2(intVec: false));
         RegisterForType<Vector2i>(_ => new VVPropEditorVector2(intVec: true));
@@ -81,7 +81,7 @@ internal sealed partial class ViewVariableControlFactory : IViewVariableControlF
                 return editor;
             }
         );
-        RegisterWithCondition(type => type.IsEnum, _ => new VVPropEditorEnum());
+        RegisterWithCondition(type => type.IsEnum, type => CreateGenericEditor(type, typeof(VVPropEditorEnum<>)));
     }
 
     /// <inheritdoc />
@@ -117,6 +117,11 @@ internal sealed partial class ViewVariableControlFactory : IViewVariableControlF
         }
 
         if (_factoriesByType.TryGetValue(type, out var factory))
+        {
+            return factory(type);
+        }
+
+        if (type.IsNullable() && type.GetUnderlyingType() is {} baseType && _factoriesByType.TryGetValue(baseType, out factory))
         {
             return factory(type);
         }
