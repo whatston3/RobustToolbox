@@ -58,46 +58,56 @@ namespace Robust.Client.ViewVariables.Editors
             };
 
             // Assign default text to editors.
-            switch (_type)
+            if (value == null)
             {
-                case BoxType.Box2:
+                left.Text = NullString;
+                top.Text = NullString;
+                right.Text = NullString;
+                bottom.Text = NullString;
+            }
+            else
+            {
+                switch (_type)
                 {
-                    var box = (Box2) value!;
-                    left.Text = box.Left.ToString(CultureInfo.InvariantCulture);
-                    top.Text = box.Top.ToString(CultureInfo.InvariantCulture);
-                    right.Text = box.Right.ToString(CultureInfo.InvariantCulture);
-                    bottom.Text = box.Bottom.ToString(CultureInfo.InvariantCulture);
-                    break;
+                    case BoxType.Box2:
+                    {
+                        var box = (Box2) value!;
+                        left.Text = box.Left.ToString(CultureInfo.InvariantCulture);
+                        top.Text = box.Top.ToString(CultureInfo.InvariantCulture);
+                        right.Text = box.Right.ToString(CultureInfo.InvariantCulture);
+                        bottom.Text = box.Bottom.ToString(CultureInfo.InvariantCulture);
+                        break;
+                    }
+                    case BoxType.Box2i:
+                    {
+                        var box = (Box2i) value!;
+                        left.Text = box.Left.ToString(CultureInfo.InvariantCulture);
+                        top.Text = box.Top.ToString(CultureInfo.InvariantCulture);
+                        right.Text = box.Right.ToString(CultureInfo.InvariantCulture);
+                        bottom.Text = box.Bottom.ToString(CultureInfo.InvariantCulture);
+                        break;
+                    }
+                    case BoxType.UIBox2:
+                    {
+                        var box = (UIBox2) value!;
+                        left.Text = box.Left.ToString(CultureInfo.InvariantCulture);
+                        top.Text = box.Top.ToString(CultureInfo.InvariantCulture);
+                        right.Text = box.Right.ToString(CultureInfo.InvariantCulture);
+                        bottom.Text = box.Bottom.ToString(CultureInfo.InvariantCulture);
+                        break;
+                    }
+                    case BoxType.UIBox2i:
+                    {
+                        var box = (UIBox2i) value!;
+                        left.Text = box.Left.ToString(CultureInfo.InvariantCulture);
+                        top.Text = box.Top.ToString(CultureInfo.InvariantCulture);
+                        right.Text = box.Right.ToString(CultureInfo.InvariantCulture);
+                        bottom.Text = box.Bottom.ToString(CultureInfo.InvariantCulture);
+                        break;
+                    }
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
-                case BoxType.Box2i:
-                {
-                    var box = (Box2i) value!;
-                    left.Text = box.Left.ToString(CultureInfo.InvariantCulture);
-                    top.Text = box.Top.ToString(CultureInfo.InvariantCulture);
-                    right.Text = box.Right.ToString(CultureInfo.InvariantCulture);
-                    bottom.Text = box.Bottom.ToString(CultureInfo.InvariantCulture);
-                    break;
-                }
-                case BoxType.UIBox2:
-                {
-                    var box = (UIBox2) value!;
-                    left.Text = box.Left.ToString(CultureInfo.InvariantCulture);
-                    top.Text = box.Top.ToString(CultureInfo.InvariantCulture);
-                    right.Text = box.Right.ToString(CultureInfo.InvariantCulture);
-                    bottom.Text = box.Bottom.ToString(CultureInfo.InvariantCulture);
-                    break;
-                }
-                case BoxType.UIBox2i:
-                {
-                    var box = (UIBox2i) value!;
-                    left.Text = box.Left.ToString(CultureInfo.InvariantCulture);
-                    top.Text = box.Top.ToString(CultureInfo.InvariantCulture);
-                    right.Text = box.Right.ToString(CultureInfo.InvariantCulture);
-                    bottom.Text = box.Bottom.ToString(CultureInfo.InvariantCulture);
-                    break;
-                }
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
 
             // Organization of the editors is different when left vs right handed.

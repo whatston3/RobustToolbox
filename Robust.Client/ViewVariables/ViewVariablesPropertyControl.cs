@@ -73,7 +73,7 @@ namespace Robust.Client.ViewVariables
         public VVPropEditor SetProperty(ViewVariablesBlobMembers.MemberData member)
         {
             NameLabel.Text = member.Name;
-            var type = member.Value?.GetType();
+            var type = Type.GetType(member.Type);
 
             _bottomLabel.Text = $"Type: {member.TypePretty}";
             var editor = _viewVariablesManager.PropertyFor(type);
