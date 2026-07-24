@@ -13,6 +13,8 @@ namespace Robust.Client.State
         public event Action<StateChangedEventArgs>? OnStateChanged;
         public State CurrentState { get; private set; }
 
+        private LazySawmill _lazyLog = new("state_mgr");
+
         public StateManager()
         {
             CurrentState = new DefaultState();
@@ -38,7 +40,7 @@ namespace Robust.Client.State
 
         private State SwitchToState(Type type)
         {
-            Logger.Debug($"Switching to state {type}");
+            _lazyLog.Sawmill.Debug($"Switching to state {type}");
 
             var newState = _typeFactory.CreateInstance<State>(type);
 

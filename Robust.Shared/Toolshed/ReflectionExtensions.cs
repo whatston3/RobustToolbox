@@ -226,11 +226,12 @@ internal static class ReflectionExtensions
 
     public static void DumpGenericInfo(this Type t)
     {
-        Logger.Debug($"Info for {t.PrettyName()}");
-        Logger.Debug(
+        var sawmill = Logger.GetSawmill("reflection");
+        sawmill.Debug($"Info for {t.PrettyName()}");
+        sawmill.Debug(
             $"GP {t.IsGenericParameter} | MP {t.IsGenericMethodParameter} | TP {t.IsGenericTypeParameter} | DEF {t.IsGenericTypeDefinition} | TY {t.IsGenericType} | CON {t.IsConstructedGenericType}");
         if (t.IsGenericParameter)
-            Logger.Debug($"CONSTRAINTS: {string.Join(", ", t.GetGenericParameterConstraints().Select(PrettyName))}");
+            sawmill.Debug($"CONSTRAINTS: {string.Join(", ", t.GetGenericParameterConstraints().Select(PrettyName))}");
         if (!t.IsGenericTypeDefinition && IsGenericRelated(t) && t.IsGenericType)
             DumpGenericInfo(t.GetGenericTypeDefinition());
         foreach (var p in t.GetGenericArguments())

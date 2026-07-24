@@ -24,6 +24,8 @@ internal sealed partial class ProfTree : Control
 
     private readonly TreeExpand _treeExpand = new();
 
+    private LazySawmill _lazyLog = new("prof.ui");
+
     public ProfTree()
     {
         RobustXamlLoader.Load(this);
@@ -53,7 +55,7 @@ internal sealed partial class ProfTree : Control
         var indexIdx = _profViewMgr.GetIndexOfFrame(Frame, _snapshot);
         if (indexIdx == 0)
         {
-            Logger.WarningS("prof.ui", $"Unable to find index for frame: {Frame}");
+            _lazyLog.Sawmill.Warning($"Unable to find index for frame: {Frame}");
             return;
         }
 

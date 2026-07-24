@@ -30,6 +30,8 @@ namespace Robust.Client.Graphics
         [DataField("stencil")]
         private StencilParameters? _stencil;
 
+        private LazySawmill _lazyLog = new("shader");
+
         /// <summary>
         ///     Retrieves a ready-to-use instance of this shader.
         /// </summary>
@@ -68,7 +70,7 @@ namespace Robust.Client.Graphics
                     if (_rawBlendMode != null)
                     {
                         if (!Enum.TryParse<ShaderBlendMode>(_rawBlendMode, true, out var parsed))
-                            Logger.Error($"invalid mode: {_rawBlendMode}");
+                            _lazyLog.Sawmill.Error($"invalid mode: {_rawBlendMode}");
                         else
                             blend = parsed;
                     }
@@ -128,7 +130,7 @@ namespace Robust.Client.Graphics
                             var name = item.Key;
                             if (!_source.ParsedShader.Uniforms.TryGetValue(name, out var uniformDefinition))
                             {
-                                Logger.ErrorS("shader", "Shader param '{0}' does not exist on shader '{1}'", name, _path);
+                                _lazyLog.Sawmill.Error("Shader param '{0}' does not exist on shader '{1}'", name, _path);
                                 continue;
                             }
 

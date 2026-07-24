@@ -3,11 +3,8 @@ using System.Numerics;
 using Robust.Client.Graphics;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Input;
-using Robust.Shared.IoC;
 using Robust.Shared.Log;
-using Robust.Shared.Map;
 using Robust.Shared.Maths;
-using Robust.Shared.Timing;
 
 namespace Robust.Client.UserInterface.CustomControls
 {
@@ -31,6 +28,8 @@ namespace Robust.Client.UserInterface.CustomControls
         public event Action? OnClose;
 
         public event Action? OnOpen;
+
+        private LazySawmill _lazyLog = new("ui");
 
         public virtual void Close()
         {
@@ -225,7 +224,7 @@ namespace Robust.Client.UserInterface.CustomControls
             if (!Visible)
             {
                 Visible = true;
-                Logger.WarningS("ui", $"Window {this} had visibility false. Do not use visibility on DefaultWindow.");
+                _lazyLog.Sawmill.Warning($"Window {this} had visibility false. Do not use visibility on DefaultWindow.");
             }
 
             if (!IsOpen)

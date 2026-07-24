@@ -21,8 +21,8 @@ namespace Robust.Shared.Serialization.Manager
 {
     public sealed partial class SerializationManager : ISerializationManager
     {
-        [Dependency] private readonly INetManager _net = default!;
-        [Dependency] private readonly IReflectionManager _reflectionManager = default!;
+        [Dependency] private INetManager _net = default!;
+        [Dependency] private IReflectionManager _reflectionManager = default!;
 
         public IReflectionManager ReflectionManager => _reflectionManager;
 

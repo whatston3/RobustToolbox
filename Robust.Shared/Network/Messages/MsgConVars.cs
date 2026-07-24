@@ -19,11 +19,13 @@ namespace Robust.Shared.Network.Messages
         public GameTick Tick;
         public List<(string name, object value)> NetworkedVars = null!;
 
+        private LazySawmill _lazyLog = new("net");
+
         /// <inheritdoc />
         public override void ReadFromBuffer(NetIncomingMessage buffer, IRobustSerializer serializer)
         {
             if(buffer.LengthBytes > MaxMessageSize)
-                Logger.WarningS("net", $"{MsgChannel}: received a large {nameof(MsgConVars)}, {buffer.LengthBytes}B > {MaxMessageSize}B");
+                _lazyLog.Sawmill.Warning($"{MsgChannel}: received a large {nameof(MsgConVars)}, {buffer.LengthBytes}B > {MaxMessageSize}B");
 
             Tick = new GameTick(buffer.ReadVariableUInt32());
             var nVars = buffer.ReadInt16();

@@ -29,6 +29,8 @@ internal struct WordWrap
     // We need to keep track of some data to split it into two words.
     public (int breakIndex, int wordSizePixels)? ForceSplitData = null;
 
+    private LazySawmill LazyLog = new("wordwrap");
+
     public WordWrap(float maxSizeX)
     {
         this = default;
@@ -149,20 +151,21 @@ internal struct WordWrap
         {
             if (!WordStartBreakIndex.HasValue)
             {
-                Logger.Error(
+                var sawmill = LazyLog.Sawmill;
+                sawmill.Error(
                     "Assert fail inside RichTextEntry.Update, " +
                     "wordStartBreakIndex is null on method end w/ word wrap required. " +
                     "Dumping relevant stuff. Send this to PJB.");
-                // Logger.Error($"Message: {Message}");
-                Logger.Error($"maxSizeX: {_maxSizeX}");
-                Logger.Error($"maxUsedWidth: {MaxUsedWidth}");
-                Logger.Error($"breakIndexCounter: {BreakIndexCounter}");
-                Logger.Error("wordStartBreakIndex: null (duh)");
-                Logger.Error($"wordSizePixels: {WordSizePixels}");
-                Logger.Error($"posX: {PosX}");
-                Logger.Error($"lastChar: {LastRune}");
-                Logger.Error($"forceSplitData: {ForceSplitData}");
-                // Logger.Error($"LineBreaks: {string.Join(", ", LineBreaks)}");
+                // sawmill.Error($"Message: {Message}");
+                sawmill.Error($"maxSizeX: {_maxSizeX}");
+                sawmill.Error($"maxUsedWidth: {MaxUsedWidth}");
+                sawmill.Error($"breakIndexCounter: {BreakIndexCounter}");
+                sawmill.Error("wordStartBreakIndex: null (duh)");
+                sawmill.Error($"wordSizePixels: {WordSizePixels}");
+                sawmill.Error($"posX: {PosX}");
+                sawmill.Error($"lastChar: {LastRune}");
+                sawmill.Error($"forceSplitData: {ForceSplitData}");
+                // sawmill.Error($"LineBreaks: {string.Join(", ", LineBreaks)}");
 
                 throw new Exception(
                     "wordStartBreakIndex can only be null if the word begins at a new line," +

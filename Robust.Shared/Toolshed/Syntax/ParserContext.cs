@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -63,6 +62,8 @@ public sealed partial class ParserContext
     /// Whether the parser has reached the end of the input.
     /// </summary>
     public bool OutOfInput => Index > MaxIndex;
+
+    private LazySawmill _lazyLog = new("parser");
 
     public ParserContext(string input, ToolshedManager toolshed, ToolshedEnvironment environment, IVariableParser parser, ICommonSession? session)
     {
@@ -172,8 +173,9 @@ public sealed partial class ParserContext
     [PublicAPI]
     public void DebugPrint()
     {
-        Logger.DebugS("parser", string.Join(", ", _blockStack));
-        Logger.DebugS("parser", Input);
+        var sawmill = _lazyLog.Sawmill;
+        sawmill.Debug(string.Join(", ", _blockStack));
+        sawmill.Debug(Input);
         MakeDebugPointer(Index);
         MakeDebugPointer(MaxIndex, '|');
     }
@@ -183,7 +185,7 @@ public sealed partial class ParserContext
         var builder = new StringBuilder();
         builder.Append(' ', pointAt);
         builder.Append(pointer);
-        Logger.DebugS("parser", builder.ToString());
+        _lazyLog.Sawmill.Debug(builder.ToString());
     }
 
     private string? MaybeGetWord(bool advanceIndex, Func<Rune, bool>? test)

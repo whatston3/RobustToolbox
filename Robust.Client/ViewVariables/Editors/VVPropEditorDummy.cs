@@ -10,11 +10,13 @@ namespace Robust.Client.ViewVariables.Editors
     /// </summary>
     internal sealed class VVPropEditorDummy : VVPropEditor
     {
+        private LazySawmill _lazyLog = new("vv");
+
         protected override Control MakeUI(object? value)
         {
             if (!ReadOnly)
             {
-                Logger.WarningS("vv", "ViewVariablesPropertyEditorDummy being selected for editable field.");
+                _lazyLog.Sawmill.Warning("ViewVariablesPropertyEditorDummy being selected for editable field.");
             }
             return new Label
             {

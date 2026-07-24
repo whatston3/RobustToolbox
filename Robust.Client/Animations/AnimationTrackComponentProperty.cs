@@ -13,6 +13,8 @@ namespace Robust.Client.Animations
         public Type? ComponentType { get; set; }
         public string? Property { get; set; }
 
+        private LazySawmill _lazyLog = new("animation_track");
+
         protected override void ApplyProperty(object context, object value)
         {
             if (Property == null || ComponentType == null)
@@ -26,7 +28,7 @@ namespace Robust.Client.Animations
             if (!entManager.TryGetComponent(entity, ComponentType, out var component))
             {
                 // This gets checked when the animation is first played, but the component may also be removed while the animation plays
-                Logger.Error($"Couldn't find component {ComponentType} on {entManager.ToPrettyString(entity)} for animation playback!");
+                _lazyLog.Sawmill.Error($"Couldn't find component {ComponentType} on {entManager.ToPrettyString(entity)} for animation playback!");
                 return;
             }
 

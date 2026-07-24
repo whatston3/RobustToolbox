@@ -8,7 +8,7 @@ namespace Robust.Server.GameObjects;
 
 public sealed partial class PointLightSystem : SharedPointLightSystem
 {
-    [Dependency] private readonly SharedContainerSystem _container = default!;
+    [Dependency] private SharedContainerSystem _container = default!;
     [Dependency] private MetaDataSystem _metadata = default!;
 
     public override void Initialize()

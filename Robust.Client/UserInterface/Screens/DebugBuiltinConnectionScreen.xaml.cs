@@ -12,7 +12,6 @@ using Robust.Shared.Configuration;
 using Robust.Shared.ContentPack;
 using Robust.Shared.IoC;
 using Robust.Shared.Localization;
-using Robust.Shared.Log;
 using Robust.Shared.Network;
 using Robust.Shared.Utility;
 
@@ -80,7 +79,7 @@ public sealed partial class DebugBuiltinConnectionScreen : UIScreen
         catch (ArgumentException e)
         {
             _userInterface.Popup(Loc.GetString("debug-builtin-connection-screen-failed-to-connect", ("reason", e.Message)));
-            Logger.Warning(e.ToString());
+            Log.Warning(e.ToString());
             _net.ConnectFailed -= OnConnectFailed;
             SetConnectingState(false);
         }
