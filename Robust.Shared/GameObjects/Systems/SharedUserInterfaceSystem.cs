@@ -400,25 +400,46 @@ public abstract partial class SharedUserInterfaceSystem : EntitySystem
         Dictionary<Enum, List<NetEntity>>? stateActors = null;
         Dictionary<Enum, InterfaceData>? stateData = null;
         Dictionary<Enum, BoundUserInterfaceState>? stateStates = null;
+        bool anySet = false;
+
+        if (args.Next is UserInterfaceComponentState nextState)
+        {
+            stateActors = nextState.Actors;
+            stateData = nextState.Data;
+            stateStates = nextState.States;
+            anySet = true;
+        }
+        else if (args.Next is UserInterfaceActorsDeltaState nextActorDelta)
+        {
+            stateActors = nextActorDelta.Actors;
+            anySet = true;
+        }
+        else if (args.Next is UserInterfaceStatesDeltaState nextStateDelta)
+        {
+            stateStates = nextStateDelta.States;
+            anySet = true;
+        }
 
         if (args.Current is UserInterfaceComponentState state)
         {
-            stateActors = state.Actors;
-            stateData = state.Data;
-            stateStates = state.States;
+            stateActors ??= state.Actors;
+            stateData ??= state.Data;
+            stateStates ??= state.States;
+            anySet = true;
         }
         else if (args.Current is UserInterfaceActorsDeltaState actorDelta)
         {
-            stateActors = actorDelta.Actors;
+            stateActors ??= actorDelta.Actors;
+            anySet = true;
         }
         else if (args.Current is UserInterfaceStatesDeltaState stateDelta)
         {
-            stateStates = stateDelta.States;
+            stateStates ??= stateDelta.States;
+            anySet = true;
         }
-        else
-        {
+
+        if (!anySet)
             return;
-        }
 
         // Interfaces
         if (stateData != null)
@@ -428,6 +449,33 @@ public abstract partial class SharedUserInterfaceSystem : EntitySystem
             foreach (var data in stateData)
             {
                 ent.Comp.Interfaces[data.Key] = new(data.Value);
+            }
+        }
+
+        // States
+        if (stateStates != null)
+        {
+            foreach (var key in ent.Comp.States.Keys)
+            {
+                if (!stateStates.ContainsKey(key))
+                    ent.Comp.States.Remove(key);
+            }
+
+            // update any states we have open
+            foreach (var (key, buiState) in stateStates)
+            {
+                if (ent.Comp.States.TryGetValue(key, out var existing) &&
+                    existing.Equals(buiState))
+                {
+                    continue;
+                }
+
+                ent.Comp.States[key] = buiState;
+
+                if (!ent.Comp.ClientOpenInterfaces.TryGetValue(key, out var cBui) || !cBui.IsOpened)
+                    continue;
+
+                AddQueued(cBui, QueuedUpdate.ApplyState, buiState);
             }
         }
 
@@ -487,33 +535,6 @@ public abstract partial class SharedUserInterfaceSystem : EntitySystem
 
                 var bui = ent.Comp.ClientOpenInterfaces[key];
                 AddQueued(bui, QueuedUpdate.Close);
-            }
-        }
-
-        // States
-        if (stateStates != null)
-        {
-            foreach (var key in ent.Comp.States.Keys)
-            {
-                if (!stateStates.ContainsKey(key))
-                    ent.Comp.States.Remove(key);
-            }
-
-            // update any states we have open
-            foreach (var (key, buiState) in stateStates)
-            {
-                if (ent.Comp.States.TryGetValue(key, out var existing) &&
-                    existing.Equals(buiState))
-                {
-                    continue;
-                }
-
-                ent.Comp.States[key] = buiState;
-
-                if (!ent.Comp.ClientOpenInterfaces.TryGetValue(key, out var cBui) || !cBui.IsOpened)
-                    continue;
-
-                AddQueued(cBui, QueuedUpdate.ApplyState, buiState);
             }
         }
 
