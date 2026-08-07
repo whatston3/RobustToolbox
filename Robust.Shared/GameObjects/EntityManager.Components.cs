@@ -6,10 +6,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
 using JetBrains.Annotations;
 using Robust.Shared.GameStates;
-using Robust.Shared.Log;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
@@ -1205,12 +1203,12 @@ namespace Robust.Shared.GameObjects
 
         /// <inheritdoc/>
         public void CopyComponents(
-            Entity<IComponent> source,
+            EntityUid source,
             Entity<MetaDataComponent?> target,
             ISerializationContext? serContext = null,
             params IComponent[] sourceComponents)
         {
-            CopyComponents(source.Owner, target.Owner, target.Comp, serContext, sourceComponents);
+            CopyComponents(source, target.Owner, target.Comp, serContext, sourceComponents);
         }
 
         /// <inheritdoc/>

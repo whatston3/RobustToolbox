@@ -477,7 +477,7 @@ namespace Robust.Shared.GameObjects
         /// <param name="sourceComponents">List of components we will attempt to copy from the source</param>
         /// <returns>The added component to the target entity</returnsm>
         void CopyComponents(
-            Entity<IComponent> source,
+            EntityUid source,
             Entity<MetaDataComponent?> target,
             ISerializationContext? serContext = null,
             params IComponent[] sourceComponents);
