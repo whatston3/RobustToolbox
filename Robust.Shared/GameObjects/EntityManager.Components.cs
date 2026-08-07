@@ -13,6 +13,7 @@ using Robust.Shared.Log;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Serialization.Manager;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 #if EXCEPTION_TOLERANCE
@@ -126,7 +127,7 @@ namespace Robust.Shared.GameObjects
 
             foreach (var comp in comps)
             {
-                if (comp is {LifeStage: ComponentLifeStage.Added})
+                if (comp is { LifeStage: ComponentLifeStage.Added })
                     LifeInitialize(uid, comp, _componentFactory.GetIndex(comp.GetType()));
             }
 
@@ -275,10 +276,10 @@ namespace Robust.Shared.GameObjects
                     return;
 
                 if (!Comp.Initialized)
-                    ((EntityManager) _entMan).LifeInitialize(_owner, Comp, CompType);
+                    ((EntityManager)_entMan).LifeInitialize(_owner, Comp, CompType);
 
                 if (metadata.EntityInitialized && !Comp.Running)
-                    ((EntityManager) _entMan).LifeStartup(_owner, Comp, CompType);
+                    ((EntityManager)_entMan).LifeStartup(_owner, Comp, CompType);
             }
 
             public static implicit operator T(CompInitializeHandle<T> handle)
@@ -1097,7 +1098,23 @@ namespace Robust.Shared.GameObjects
         }
 
         /// <inheritdoc/>
-        public bool TryCopyComponent<T>(EntityUid source, EntityUid target, ref T? sourceComponent, [NotNullWhen(true)] out T? targetComp, MetaDataComponent? meta = null) where T : IComponent
+        public bool TryCopyComponent<T>(
+            Entity<T?> source,
+            Entity<MetaDataComponent?> target,
+            [NotNullWhen(true)] out T? targetComponent,
+            ISerializationContext? serContext = null) where T : IComponent
+        {
+            return TryCopyComponent(source.Owner, target.Owner, ref source.Comp, out targetComponent, target.Comp, serContext);
+        }
+
+        /// <inheritdoc/>
+        public bool TryCopyComponent<T>(
+            EntityUid source,
+            EntityUid target,
+            ref T? sourceComponent,
+            [NotNullWhen(true)] out T? targetComp,
+            MetaDataComponent? meta = null,
+            ISerializationContext? serContext = null) where T : IComponent
         {
             if (!MetaQuery.Resolve(target, ref meta))
             {
@@ -1111,8 +1128,18 @@ namespace Robust.Shared.GameObjects
                 return false;
             }
 
-            targetComp = CopyComponentInternal(source, target, sourceComponent, meta);
+            targetComp = CopyComponentInternal(source, target, sourceComponent, meta, serContext);
             return true;
+        }
+
+        /// <inheritdoc/>
+        public bool TryCopyComponents(
+            EntityUid source,
+            Entity<MetaDataComponent?> target,
+            ISerializationContext? serContext = null,
+            params Type[] sourceComponents)
+        {
+            return TryCopyComponents(source, target.Owner, target.Comp, serContext, sourceComponents);
         }
 
         /// <inheritdoc/>
@@ -1120,6 +1147,7 @@ namespace Robust.Shared.GameObjects
             EntityUid source,
             EntityUid target,
             MetaDataComponent? meta = null,
+            ISerializationContext? serContext = null,
             params Type[] sourceComponents)
         {
             if (!MetaQuery.TryGetComponent(target, out meta))
@@ -1135,52 +1163,74 @@ namespace Robust.Shared.GameObjects
                     continue;
                 }
 
-                CopyComponent(source, target, srcComp, meta: meta);
+                CopyComponent(source, target, srcComp, meta, serContext);
             }
 
             return allCopied;
         }
 
         /// <inheritdoc/>
-        public IComponent CopyComponent(EntityUid source, EntityUid target, IComponent sourceComponent, MetaDataComponent? meta = null)
+        public IComponent CopyComponent(Entity<IComponent> source, Entity<MetaDataComponent?> target, ISerializationContext? serContext = null)
+        {
+            return CopyComponent(source.Owner, target.Owner, source.Comp, target.Comp, serContext);
+        }
+
+        /// <inheritdoc/>
+        public IComponent CopyComponent(EntityUid source, EntityUid target, IComponent sourceComponent, MetaDataComponent? meta = null, ISerializationContext? serContext = null)
         {
             if (!MetaQuery.Resolve(target, ref meta))
             {
                 throw new InvalidOperationException();
             }
 
-            return CopyComponentInternal(source, target, sourceComponent, meta);
+            return CopyComponentInternal(source, target, sourceComponent, meta, serContext);
         }
 
         /// <inheritdoc/>
-        public T CopyComponent<T>(EntityUid source, EntityUid target, T sourceComponent,MetaDataComponent? meta = null) where T : IComponent
+        public T CopyComponent<T>(Entity<T> source, Entity<MetaDataComponent?> target, ISerializationContext? serContext = null) where T : IComponent
+        {
+            return CopyComponent(source.Owner, target.Owner, source.Comp, target.Comp, serContext);
+        }
+
+        /// <inheritdoc/>
+        public T CopyComponent<T>(EntityUid source, EntityUid target, T sourceComponent, MetaDataComponent? meta = null, ISerializationContext? serContext = null) where T : IComponent
         {
             if (!MetaQuery.Resolve(target, ref meta))
             {
                 throw new InvalidOperationException();
             }
 
-            return CopyComponentInternal(source, target, sourceComponent, meta);
+            return CopyComponentInternal(source, target, sourceComponent, meta, serContext);
         }
 
         /// <inheritdoc/>
-        public void CopyComponents(EntityUid source, EntityUid target, MetaDataComponent? meta = null, params IComponent[] sourceComponents)
+        public void CopyComponents(
+            Entity<IComponent> source,
+            Entity<MetaDataComponent?> target,
+            ISerializationContext? serContext = null,
+            params IComponent[] sourceComponents)
+        {
+            CopyComponents(source.Owner, target.Owner, target.Comp, serContext, sourceComponents);
+        }
+
+        /// <inheritdoc/>
+        public void CopyComponents(EntityUid source, EntityUid target, MetaDataComponent? meta = null, ISerializationContext? serContext = null, params IComponent[] sourceComponents)
         {
             if (!MetaQuery.Resolve(target, ref meta))
                 return;
 
             foreach (var comp in sourceComponents)
             {
-                CopyComponentInternal(source, target, comp, meta);
+                CopyComponentInternal(source, target, comp, meta, serContext);
             }
         }
 
-        private T CopyComponentInternal<T>(EntityUid source, EntityUid target, T sourceComponent, MetaDataComponent meta) where T : IComponent
+        private T CopyComponentInternal<T>(EntityUid source, EntityUid target, T sourceComponent, MetaDataComponent meta, ISerializationContext? serContext = null) where T : IComponent
         {
             var compReg = ComponentFactory.GetRegistration(sourceComponent.GetType());
             var component = (T)ComponentFactory.GetComponent(compReg);
 
-            _serManager.CopyTo(sourceComponent, ref component, notNullableOverride: true);
+            _serManager.CopyTo(sourceComponent, ref component, notNullableOverride: true, context: serContext);
             component.Owner = target;
 
             AddComponentInternal(target, component, compReg, true, false, meta);
@@ -1548,8 +1598,8 @@ namespace Robust.Shared.GameObjects
                         continue;
 
                     yield return (
-                        (TComp1) t1Comp,
-                        (TComp2) t2Comp);
+                        (TComp1)t1Comp,
+                        (TComp2)t2Comp);
                 }
             }
             else
@@ -1569,8 +1619,8 @@ namespace Robust.Shared.GameObjects
                     if (meta.EntityPaused) continue;
 
                     yield return (
-                        (TComp1) t1Comp,
-                        (TComp2) t2Comp);
+                        (TComp1)t1Comp,
+                        (TComp2)t2Comp);
                 }
             }
         }
@@ -1596,9 +1646,9 @@ namespace Robust.Shared.GameObjects
                         continue;
 
                     yield return (
-                        (TComp1) t1Comp,
-                        (TComp2) t2Comp,
-                        (TComp3) t3Comp);
+                        (TComp1)t1Comp,
+                        (TComp2)t2Comp,
+                        (TComp3)t3Comp);
                 }
             }
             else
@@ -1621,9 +1671,9 @@ namespace Robust.Shared.GameObjects
                     if (meta.EntityPaused) continue;
 
                     yield return (
-                        (TComp1) t1Comp,
-                        (TComp2) t2Comp,
-                        (TComp3) t3Comp);
+                        (TComp1)t1Comp,
+                        (TComp2)t2Comp,
+                        (TComp3)t3Comp);
                 }
             }
         }
@@ -1655,10 +1705,10 @@ namespace Robust.Shared.GameObjects
                         continue;
 
                     yield return (
-                        (TComp1) t1Comp,
-                        (TComp2) t2Comp,
-                        (TComp3) t3Comp,
-                        (TComp4) t4Comp);
+                        (TComp1)t1Comp,
+                        (TComp2)t2Comp,
+                        (TComp3)t3Comp,
+                        (TComp4)t4Comp);
                 }
             }
             else
@@ -1684,10 +1734,10 @@ namespace Robust.Shared.GameObjects
                     if (meta.EntityPaused) continue;
 
                     yield return (
-                        (TComp1) t1Comp,
-                        (TComp2) t2Comp,
-                        (TComp3) t3Comp,
-                        (TComp4) t4Comp);
+                        (TComp1)t1Comp,
+                        (TComp2)t2Comp,
+                        (TComp3)t3Comp,
+                        (TComp4)t4Comp);
                 }
             }
         }
@@ -1839,7 +1889,7 @@ namespace Robust.Shared.GameObjects
         public TComp1 GetComponent(EntityUid uid)
         {
             if (_traitDict.TryGetValue(uid, out var comp) && !comp.Deleted)
-                return (TComp1) comp;
+                return (TComp1)comp;
 
             throw new KeyNotFoundException($"Entity {uid} does not have a component of type {typeof(TComp1)}");
         }
@@ -1849,7 +1899,7 @@ namespace Robust.Shared.GameObjects
         public Entity<TComp1> Get(EntityUid uid)
         {
             if (_traitDict.TryGetValue(uid, out var comp) && !comp.Deleted)
-                return new Entity<TComp1>(uid, (TComp1) comp);
+                return new Entity<TComp1>(uid, (TComp1)comp);
 
             throw new KeyNotFoundException($"Entity {uid} does not have a component of type {typeof(TComp1)}");
         }
@@ -1890,7 +1940,7 @@ namespace Robust.Shared.GameObjects
         {
             if (_traitDict.TryGetValue(uid, out var comp) && !comp.Deleted)
             {
-                component = (TComp1) comp;
+                component = (TComp1)comp;
                 return true;
             }
 
@@ -2022,7 +2072,7 @@ namespace Robust.Shared.GameObjects
         internal TComp1 GetComponentInternal(EntityUid uid)
         {
             if (_traitDict.TryGetValue(uid, out var comp))
-                return (TComp1) comp;
+                return (TComp1)comp;
 
             throw new KeyNotFoundException($"Entity {uid} does not have a component of type {typeof(TComp1)}");
         }
@@ -2052,7 +2102,7 @@ namespace Robust.Shared.GameObjects
         {
             if (_traitDict.TryGetValue(uid, out var comp))
             {
-                component = (TComp1) comp;
+                component = (TComp1)comp;
                 return true;
             }
 

@@ -7,6 +7,7 @@ using Robust.Shared.Containers;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Serialization.Manager;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 
@@ -162,7 +163,7 @@ public partial class EntitySystem
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void DirtyField<T>(Entity<T?> entity, [ValidateMember]string fieldName, MetaDataComponent? meta = null)
+    protected void DirtyField<T>(Entity<T?> entity, [ValidateMember] string fieldName, MetaDataComponent? meta = null)
         where T : IComponentDelta
     {
         if (!Resolve(entity.Owner, ref entity.Comp))
@@ -173,7 +174,7 @@ public partial class EntitySystem
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ProxyFor(typeof(EntityManager))]
-    protected void DirtyField<T>(EntityUid uid, T component, [ValidateMember]string fieldName, MetaDataComponent? meta = null)
+    protected void DirtyField<T>(EntityUid uid, T component, [ValidateMember] string fieldName, MetaDataComponent? meta = null)
         where T : IComponentDelta
     {
         EntityManager.DirtyField(uid, component, fieldName, meta);
@@ -631,9 +632,10 @@ public partial class EntitySystem
         EntityUid target,
         ref T? sourceComponent,
         [NotNullWhen(true)] out T? targetComp,
-        MetaDataComponent? meta = null) where T : IComponent
+        MetaDataComponent? meta = null,
+        ISerializationContext? serContext = null) where T : IComponent
     {
-        return EntityManager.TryCopyComponent(source, target, ref sourceComponent, out targetComp, meta);
+        return EntityManager.TryCopyComponent(source, target, ref sourceComponent, out targetComp, meta, serContext);
     }
 
     /// <inheritdoc cref="IEntityManager.TryCopyComponents"/>
@@ -642,33 +644,50 @@ public partial class EntitySystem
         EntityUid source,
         EntityUid target,
         MetaDataComponent? meta = null,
+        ISerializationContext? serContext = null,
         params Type[] sourceComponents)
     {
-        return EntityManager.TryCopyComponents(source, target, meta, sourceComponents);
+        return EntityManager.TryCopyComponents(source, target, meta, serContext, sourceComponents);
     }
 
     /// <inheritdoc cref="IEntityManager.CopyComponent"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ProxyFor(typeof(EntityManager), nameof(EntityManager.CopyComponent))]
-    protected IComponent CopyComp(EntityUid source, EntityUid target, IComponent sourceComponent, MetaDataComponent? meta = null)
+    protected IComponent CopyComp(Entity<IComponent> source, Entity<MetaDataComponent?> target, ISerializationContext? serContext = null)
     {
-        return EntityManager.CopyComponent(source, target, sourceComponent, meta);
+        return EntityManager.CopyComponent(source, target, serContext);
+    }
+
+    /// <inheritdoc cref="IEntityManager.CopyComponent"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [ProxyFor(typeof(EntityManager), nameof(EntityManager.CopyComponent))]
+    protected IComponent CopyComp(EntityUid source, EntityUid target, IComponent sourceComponent, MetaDataComponent? meta = null, ISerializationContext? serContext = null)
+    {
+        return EntityManager.CopyComponent(source, target, sourceComponent, meta, serContext);
     }
 
     /// <inheritdoc cref="IEntityManager.CopyComponent{T}"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ProxyFor(typeof(EntityManager), nameof(EntityManager.CopyComponent))]
-    protected T CopyComp<T>(EntityUid source, EntityUid target, T sourceComponent, MetaDataComponent? meta = null) where T : IComponent
+    protected T CopyComp<T>(EntityUid source, EntityUid target, T sourceComponent, MetaDataComponent? meta = null, ISerializationContext? serContext = null) where T : IComponent
     {
-        return EntityManager.CopyComponent(source, target, sourceComponent, meta);
+        return EntityManager.CopyComponent(source, target, sourceComponent, meta, serContext);
+    }
+
+    /// <inheritdoc cref="IEntityManager.CopyComponent{T}"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [ProxyFor(typeof(EntityManager), nameof(EntityManager.CopyComponent))]
+    protected T CopyComp<T>(Entity<T> source, Entity<MetaDataComponent?> target, ISerializationContext? serContext = null) where T : IComponent
+    {
+        return EntityManager.CopyComponent(source, target, serContext);
     }
 
     /// <inheritdoc cref="IEntityManager.CopyComponents"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ProxyFor(typeof(EntityManager), nameof(EntityManager.CopyComponents))]
-    protected void CopyComps(EntityUid source, EntityUid target, MetaDataComponent? meta = null, params IComponent[] sourceComponents)
+    protected void CopyComps(EntityUid source, EntityUid target, MetaDataComponent? meta = null, ISerializationContext? serContext = null, params IComponent[] sourceComponents)
     {
-        EntityManager.CopyComponents(source, target, meta, sourceComponents);
+        EntityManager.CopyComponents(source, target, meta, serContext, sourceComponents);
     }
 
     #endregion
@@ -1863,7 +1882,7 @@ public partial class EntitySystem
     /// <inheritdoc cref="M:Robust.Shared.GameObjects.EntityManager.Single``1"/>
     [ProxyFor(typeof(EntityManager))]
     public Entity<TComp1> Single<TComp1>()
-        where TComp1: IComponent
+        where TComp1 : IComponent
     {
         return EntityManager.Single<TComp1>();
     }
@@ -1871,8 +1890,8 @@ public partial class EntitySystem
     /// <inheritdoc cref="M:Robust.Shared.GameObjects.EntityManager.Single``2"/>
     [ProxyFor(typeof(EntityManager))]
     public Entity<TComp1, TComp2> Single<TComp1, TComp2>()
-        where TComp1: IComponent
-        where TComp2: IComponent
+        where TComp1 : IComponent
+        where TComp2 : IComponent
     {
         return EntityManager.Single<TComp1, TComp2>();
     }
@@ -1880,9 +1899,9 @@ public partial class EntitySystem
     /// <inheritdoc cref="M:Robust.Shared.GameObjects.EntityManager.Single``3"/>
     [ProxyFor(typeof(EntityManager))]
     public Entity<TComp1, TComp2, TComp3> Single<TComp1, TComp2, TComp3>()
-        where TComp1: IComponent
-        where TComp2: IComponent
-        where TComp3: IComponent
+        where TComp1 : IComponent
+        where TComp2 : IComponent
+        where TComp3 : IComponent
     {
         return EntityManager.Single<TComp1, TComp2, TComp3>();
     }
@@ -1890,10 +1909,10 @@ public partial class EntitySystem
     /// <inheritdoc cref="M:Robust.Shared.GameObjects.EntityManager.Single``4"/>
     [ProxyFor(typeof(EntityManager))]
     public Entity<TComp1, TComp2, TComp3, TComp4> Single<TComp1, TComp2, TComp3, TComp4>()
-        where TComp1: IComponent
-        where TComp2: IComponent
-        where TComp3: IComponent
-        where TComp4: IComponent
+        where TComp1 : IComponent
+        where TComp2 : IComponent
+        where TComp3 : IComponent
+        where TComp4 : IComponent
     {
         return EntityManager.Single<TComp1, TComp2, TComp3, TComp4>();
     }

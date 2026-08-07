@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Serialization.Manager;
 using Robust.Shared.Timing;
 
 namespace Robust.Shared.GameObjects
@@ -362,30 +363,84 @@ namespace Robust.Shared.GameObjects
         /// <summary>
         /// Tries to run <see cref="CopyComponents"/> without throwing if the component doesn't exist.
         /// </summary>
+        /// <param name="source">Entity we will attempt to copy the component from</param>
+        /// <param name="target">Entity we will attempt to paste the component to</param>
+        /// <param name="sourceComponent">Component we will attempt to copy from the source entity</param>
+        /// <param name="targetComponent">The added component to the target entity, not null when the component is present in the source entity</param>
+        /// <param name="meta">Target entity optional metadata that can be provided to avoid a resolve</param>
+        /// <returns>Whether or not the source entity had the component we want to copy</returns>
         bool TryCopyComponent<T>(
             EntityUid source,
             EntityUid target,
             ref T? sourceComponent,
             [NotNullWhen(true)] out T? targetComp,
-            MetaDataComponent? meta = null) where T : IComponent;
+            MetaDataComponent? meta = null,
+            ISerializationContext? serContext = null) where T : IComponent;
+
+        /// <summary>
+        /// Tries to run <see cref="CopyComponents"/> without throwing if the component doesn't exist.
+        /// </summary>
+        /// <param name="source">Entity we will attempt to copy the component from</param>
+        /// <param name="target">Entity we will attempt to paste the component to. Optional metadata can be provided to avoid a resolve</param>
+        /// <param name="targetComponent">The added component to the target entity, not null when the component is present in the source entity</param>
+        /// <param name="serContext">The serialization context we want to pass to <see cref="ISerializationManager.CopyTo"></param>
+        /// <returns>Whether or not the source entity had the component we want to copy</returns>
+        bool TryCopyComponent<T>(
+            Entity<T?> source,
+            Entity<MetaDataComponent?> target,
+            [NotNullWhen(true)] out T? targetComponent,
+            ISerializationContext? serContext = null) where T : IComponent;
 
         /// <summary>
         /// Tries to run <see cref="CopyComponents"/> without throwing if the components don't exist.
         /// </summary>
-        bool TryCopyComponents(EntityUid source, EntityUid target, MetaDataComponent? meta = null, params Type[] sourceComponents);
+        /// <param name="source">Entity we will attempt to copy the component from</param>
+        /// <param name="target">Entity we will attempt to paste the component to</param>
+        /// <param name="meta">Target entity optional metadata that can be provided to avoid a resolve</param>
+        /// <param name="sourceComponents">List of components we will attempt to copy from the source</param>
+        /// <returns>whether or not the source entity had the components we want to copy</returns>
+        bool TryCopyComponents(
+            EntityUid source,
+            EntityUid target,
+            MetaDataComponent? meta = null,
+            ISerializationContext? serContext = null,
+            params Type[] sourceComponents);
 
         /// <summary>
-        ///     Copy a single component from source to target entity.
+        /// Tries to run <see cref="CopyComponents"/> without throwing if the components don't exist.
+        /// </summary>
+        /// <param name="source">Entity we will attempt to copy the component from</param>
+        /// <param name="target">Entity we will attempt to paste the component to. Optional metadata can be provided to avoid a resolve</param>
+        /// <param name="sourceComponents">List of components we will attempt to copy from the source</param>
+        /// <param name="serContext">The serialization context we want to pass to <see cref="ISerializationManager.CopyTo"></param>
+        /// <returns>whether or not the source entity had the components we want to copy</returns>
+        bool TryCopyComponents(
+            EntityUid source,
+            Entity<MetaDataComponent?> target,
+            ISerializationContext? serContext = null,
+            params Type[] sourceComponents);
+
+        /// <summary>
+        ///  Copy a single component from source to target entity.
         /// </summary>
         /// <param name="source">The source entity to copy from.</param>
         /// <param name="target">The target entity to copy to.</param>
         /// <param name="sourceComponent">The source component instance to copy.</param>
         /// <param name="component">The copied component if successful.</param>
         /// <param name="meta">Optional metadata of the target entity.</param>
-        IComponent CopyComponent(EntityUid source, EntityUid target, IComponent sourceComponent, MetaDataComponent? meta = null);
+        IComponent CopyComponent(EntityUid source, EntityUid target, IComponent sourceComponent, MetaDataComponent? meta = null, ISerializationContext? serContext = null);
 
         /// <summary>
-        ///     Copy a single component from source to target entity.
+        ///  Copy a single component from source to target entity.
+        /// </summary>
+        /// <param name="source">Entity we will copy the component from</param>
+        /// <param name="target">Entity we will paste the component to. Optional metadata can be provided to avoid a resolve</param>
+        /// <param name="serContext">The serialization context we want to pass to <see cref="ISerializationManager.CopyTo"></param>
+        /// <returns>The added component to the target entity</returnsm>
+        IComponent CopyComponent(Entity<IComponent> source, Entity<MetaDataComponent?> target, ISerializationContext? serContext = null);
+
+        /// <summary>
+        ///  Copy a single component from source to target entity.
         /// </summary>
         /// <typeparam name="T">The type of component to copy.</typeparam>
         /// <param name="source">The source entity to copy from.</param>
@@ -393,7 +448,16 @@ namespace Robust.Shared.GameObjects
         /// <param name="sourceComponent">The source component instance to copy.</param>
         /// <param name="component">The copied component if successful.</param>
         /// <param name="meta">Optional metadata of the target entity.</param>
-        T CopyComponent<T>(EntityUid source, EntityUid target, T sourceComponent, MetaDataComponent? meta = null) where T : IComponent;
+        T CopyComponent<T>(EntityUid source, EntityUid target, T sourceComponent, MetaDataComponent? meta = null, ISerializationContext? serContext = null) where T : IComponent;
+
+        /// <summary>
+        ///  Copy a single component from source to target entity.
+        /// </summary>
+        /// <param name="source">Entity we will copy the component from</param>
+        /// <param name="target">Entity we will paste the component to. Optional metadata can be provided to avoid a resolve</param>
+        /// <param name="serContext">The serialization context we want to pass to <see cref="ISerializationManager.CopyTo"></param>
+        /// <returns>The added component to the target entity</returnsm>
+        T CopyComponent<T>(Entity<T> source, Entity<MetaDataComponent?> target, ISerializationContext? serContext = null) where T : IComponent;
 
         /// <summary>
         /// Copy multiple components from source to target entity using existing component instances.
@@ -402,7 +466,21 @@ namespace Robust.Shared.GameObjects
         /// <param name="target">The target entity to copy to.</param>
         /// <param name="meta">Optional metadata of the target entity.</param>
         /// <param name="sourceComponents">Array of component instances to copy.</param>
-        void CopyComponents(EntityUid source, EntityUid target, MetaDataComponent? meta = null, params IComponent[] sourceComponents);
+        void CopyComponents(EntityUid source, EntityUid target, MetaDataComponent? meta = null, ISerializationContext? serContext = null, params IComponent[] sourceComponents);
+
+        /// <summary>
+        /// Copy multiple components from source to target entity using existing component instances.
+        /// </summary>
+        /// <param name="source">Entity we will copy the component from</param>
+        /// <param name="target">Entity we will paste the component to. Optional metadata can be provided to avoid a resolve</param>
+        /// <param name="serContext">The serialization context we want to pass to <see cref="ISerializationManager.CopyTo"></param>
+        /// <param name="sourceComponents">List of components we will attempt to copy from the source</param>
+        /// <returns>The added component to the target entity</returnsm>
+        void CopyComponents(
+            Entity<IComponent> source,
+            Entity<MetaDataComponent?> target,
+            ISerializationContext? serContext = null,
+            params IComponent[] sourceComponents);
 
         /// <summary>
         /// Returns a cached struct enumerator with the specified component.
@@ -556,7 +634,7 @@ namespace Robust.Shared.GameObjects
         /// </summary>
         /// <typeparam name="T">A trait or type of a component to retrieve.</typeparam>
         /// <returns>All components that have the specified type.</returns>
-        IEnumerable<T> EntityQuery<T>(bool includePaused = false) where T: IComponent;
+        IEnumerable<T> EntityQuery<T>(bool includePaused = false) where T : IComponent;
 
         /// <summary>
         /// Returns the relevant components from all entities that contain the two required components.
