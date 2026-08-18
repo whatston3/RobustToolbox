@@ -70,6 +70,13 @@ public partial class TestPair<TServer, TClient>
         await TestOut.WriteLineAsync($"{nameof(CleanReturnAsync)}: Test borrowed pair {Id} for {usageTime.TotalMilliseconds} ms");
         // Let any last minute failures the test cause happen.
         await ReallyBeIdle();
+
+        if (!Settings.Dirty && !Settings.MustNotBeReused)
+        {
+            if (Server.EntMan.EntityCount > 0 || Client.EntMan.EntityCount > 0)
+                throw new Exception($"{nameof(CleanReturnAsync)}: Test not marked as dirty, but leaked entities: {Server.EntMan.EntityCount} server, {Client.EntMan.EntityCount} client");
+        }
+
         if (!Settings.Destructive)
         {
             if (Client.IsAlive == false)
