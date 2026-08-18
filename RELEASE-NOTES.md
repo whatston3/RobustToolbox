@@ -40,6 +40,7 @@ END TEMPLATE-->
 ### New features
 
 * `AppearanceChangeEvent` now has a `TryGetData` function that checks the type of the data at a given key.
+* `TestPair.OnCleanDispose` now informs you if a test without the `PairSettings.Dirty` flag set leaks entities at the end of the test.
 
 ### Bugfixes
 
